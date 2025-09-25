@@ -1,28 +1,39 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
-import type { InsertBucket } from "@shared/schema";
+import { useStateValue } from "@/providers/StateProvider.tsx";
+import { storage } from "@/data";
+import type { InsertBucket } from "@/data/schema";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Briefcase, 
-  Home, 
-  Lightbulb, 
-  ShoppingCart, 
-  Star, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Briefcase,
+  Home,
+  Lightbulb,
+  ShoppingCart,
+  Star,
   Heart,
   Book,
   Coffee,
   Camera,
   Music,
   MapPin,
-  Gift
+  Gift,
 } from "lucide-react";
 
 interface BucketManagerProps {
@@ -58,6 +69,8 @@ const COLOR_OPTIONS = [
 
 export default function BucketManager({ isOpen, onClose }: BucketManagerProps) {
   const { toast } = useToast();
+  const [{ user }] = useStateValue();
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState("primary");
@@ -66,11 +79,10 @@ export default function BucketManager({ isOpen, onClose }: BucketManagerProps) {
   // Create bucket mutation
   const createBucketMutation = useMutation({
     mutationFn: async (bucketData: InsertBucket) => {
-      const res = await apiRequest("POST", "/api/buckets", bucketData);
-      return res.json();
+      return await storage.createBucket(bucketData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/buckets"] });
+      queryClient.invalidateQueries({ queryKey: ["buckets"] });
       toast({
         title: "Success",
         description: "Bucket created successfully",
@@ -79,17 +91,7 @@ export default function BucketManager({ isOpen, onClose }: BucketManagerProps) {
       resetForm();
     },
     onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
+      console.error("Error creating bucket:", error);
       toast({
         title: "Error",
         description: "Failed to create bucket",
@@ -107,7 +109,7 @@ export default function BucketManager({ isOpen, onClose }: BucketManagerProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim()) {
       toast({
         title: "Validation Error",
@@ -136,11 +138,13 @@ export default function BucketManager({ isOpen, onClose }: BucketManagerProps) {
         <DialogHeader>
           <DialogTitle>Create New Bucket</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium mb-2">Bucket Name</label>
+            <label className="block text-sm font-medium mb-2">
+              Bucket Name
+            </label>
             <Input
               type="text"
               placeholder="Enter bucket name..."
@@ -153,7 +157,9 @@ export default function BucketManager({ isOpen, onClose }: BucketManagerProps) {
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium mb-2">Description (Optional)</label>
+            <label className="block text-sm font-medium mb-2">
+              Description (Optional)
+            </label>
             <Textarea
               placeholder="Brief description..."
               value={description}
@@ -175,8 +181,8 @@ export default function BucketManager({ isOpen, onClose }: BucketManagerProps) {
                     key={iconOption.value}
                     type="button"
                     className={`w-10 h-10 rounded-lg border-2 hover:bg-accent transition-colors flex items-center justify-center ${
-                      icon === iconOption.value 
-                        ? "border-ring bg-accent" 
+                      icon === iconOption.value
+                        ? "border-ring bg-accent"
                         : "border-border"
                     }`}
                     onClick={() => setIcon(iconOption.value)}
@@ -201,8 +207,8 @@ export default function BucketManager({ isOpen, onClose }: BucketManagerProps) {
                   className={`w-8 h-8 rounded-full border-2 hover:scale-110 transition-transform ${
                     colorOption.color
                   } ${
-                    color === colorOption.value 
-                      ? "border-ring shadow-md" 
+                    color === colorOption.value
+                      ? "border-ring shadow-md"
                       : "border-border"
                   }`}
                   onClick={() => setColor(colorOption.value)}

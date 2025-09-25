@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
-import type { Note, BucketWithCount, InsertNote } from "@shared/schema";
+import { storage } from "@/data";
+import type { Note, BucketWithCount, InsertNote } from "@/data/schema";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +41,7 @@ const COLOR_OPTIONS = [
 
 export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, onClose }: NoteEditorProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [color, setColor] = useState("accent");
@@ -74,11 +74,11 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
   // Create note mutation
   const createNoteMutation = useMutation({
     mutationFn: async (noteData: InsertNote & { bucketIds: string[] }) => {
-      const res = await apiRequest("POST", "/api/notes", noteData);
-      return res.json();
+      return await storage.createNote(noteData, noteData.bucketIds);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/buckets"] });
+      queryClient.invalidateQueries({ queryKey: ["buckets"] });
+      queryClient.invalidateQueries({ queryKey: ["notes", selectedBucketId] });
       toast({
         title: "Success",
         description: "Note created successfully",
@@ -86,17 +86,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
       onClose();
     },
     onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
+      console.error("Error creating note:", error);
       toast({
         title: "Error",
         description: "Failed to create note",
@@ -108,11 +98,11 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
   // Update note mutation
   const updateNoteMutation = useMutation({
     mutationFn: async (noteData: Partial<InsertNote> & { bucketIds: string[] }) => {
-      const res = await apiRequest("PUT", `/api/notes/${note!.id}`, noteData);
-      return res.json();
+      return await storage.updateNote(note!.id, noteData, noteData.bucketIds);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/buckets"] });
+      queryClient.invalidateQueries({ queryKey: ["buckets"] });
+      queryClient.invalidateQueries({ queryKey: ["notes", selectedBucketId] });
       toast({
         title: "Success",
         description: "Note updated successfully",
@@ -120,17 +110,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
       onClose();
     },
     onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
+      console.error("Error updating note:", error);
       toast({
         title: "Error",
         description: "Failed to update note",
@@ -157,7 +137,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
       color,
       fontFamily,
       primaryBucketId,
-      bucketIds: selectedBuckets,
+      bucketIds: [primaryBucketId, ...selectedBuckets],
     };
 
     if (isEditing) {

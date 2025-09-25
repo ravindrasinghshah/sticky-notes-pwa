@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stickypwa-v1';
+const CACHE_NAME = 'stickynotes-app-v1';
 const urlsToCache = [
   '/',
   '/src/main.tsx',

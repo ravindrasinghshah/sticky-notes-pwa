@@ -21,9 +21,11 @@ import {
   Plus,
   Share2,
   Trash2,
+  MoreVertical,
 } from "lucide-react";
 import NoteEditor from "@/components/note-editor";
 import BucketManager from "@/components/bucket-manager";
+import DeleteBucketDialog from "@/components/delete-bucket-dialog";
 import LayoutWrapper from "@/components/layout-wrapper";
 
 export default function Home() {
@@ -41,6 +43,8 @@ export default function Home() {
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [bucketToDelete, setBucketToDelete] = useState<BucketWithCount | null>(null);
 
   // Fetch buckets
   const { data: buckets = [], isLoading: bucketsLoading } = useQuery<
@@ -96,6 +100,27 @@ export default function Home() {
     if (!selectedBucketId) return;
     setEditingNote(null);
     setShowNoteEditor(true);
+  };
+
+  // Handle bucket deletion
+  const handleDeleteBucket = (bucket: BucketWithCount, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent bucket selection
+    setBucketToDelete(bucket);
+    setShowDeleteDialog(true);
+  };
+
+  const handleBucketDeleted = () => {
+    // If the deleted bucket was selected, select the first available bucket
+    if (bucketToDelete && selectedBucketId === bucketToDelete.id) {
+      const remainingBuckets = buckets.filter(b => b.id !== bucketToDelete.id);
+      if (remainingBuckets.length > 0) {
+        setSelectedBucketId(remainingBuckets[0].id);
+        setLocation(`/home/bucket/${remainingBuckets[0].id}`);
+      } else {
+        setSelectedBucketId(null);
+        setLocation('/home');
+      }
+    }
   };
 
   // Handle editing note
@@ -233,7 +258,7 @@ export default function Home() {
                       : buckets.map((bucket) => (
                           <div
                             key={bucket.id}
-                            className={`p-3 rounded-md cursor-pointer border transition-all hover:shadow-sm ${
+                            className={`group p-3 rounded-md cursor-pointer border transition-all hover:shadow-sm ${
                               selectedBucketId === bucket.id
                                 ? "bg-muted border-border"
                                 : "hover:bg-muted/50 border-transparent hover:border-border"
@@ -252,9 +277,20 @@ export default function Home() {
                                   {bucket.name}
                                 </span>
                               </div>
-                              <Badge variant="secondary" className="text-xs">
-                                {bucket.noteCount}
-                              </Badge>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="text-xs">
+                                  {bucket.noteCount}
+                                </Badge>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground transition-all"
+                                  onClick={(e) => handleDeleteBucket(bucket, e)}
+                                  data-testid={`button-delete-bucket-${bucket.id}`}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -448,6 +484,14 @@ export default function Home() {
           onClose={() => setShowBucketManager(false)}
         />
       )}
+
+      {/* Delete Bucket Dialog */}
+      <DeleteBucketDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        bucket={bucketToDelete}
+        onBucketDeleted={handleBucketDeleted}
+      />
     </LayoutWrapper>
   );
 }

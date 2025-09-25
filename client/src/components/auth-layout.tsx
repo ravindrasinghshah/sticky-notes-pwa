@@ -17,7 +17,6 @@ interface AuthLayoutProps {
   children: ReactNode;
   showSearch?: boolean;
   onSearch?: (query: string, bucketId?: string) => void;
-  onSearchResults?: (results: any[]) => void;
   currentBucketId?: string;
 }
 
@@ -25,7 +24,6 @@ export default function AuthLayout({
   children,
   showSearch = false,
   onSearch,
-  onSearchResults,
   currentBucketId,
 }: AuthLayoutProps) {
   const [{ user, isAuthenticated = false }] = useStateValue();
@@ -56,16 +54,15 @@ export default function AuthLayout({
                 <StickyNote className="text-accent-foreground" />
               </div>
               <h1 className="text-xl font-semibold text-foreground">
-                StickyPWA
+                Sticky Notes
               </h1>
             </div>
 
             {/* Search Bar - only show when enabled */}
-            {showSearch && onSearch && onSearchResults && (
+            {showSearch && onSearch && (
               <div className="flex-1 max-w-2xl mx-8">
                 <SearchBar
                   onSearch={onSearch}
-                  onResults={onSearchResults}
                   currentBucketId={currentBucketId}
                 />
               </div>

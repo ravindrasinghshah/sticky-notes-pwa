@@ -16,7 +16,7 @@ export default function Settings() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Settings</h1>
           <p className="text-muted-foreground">
-            Customize your StickyPWA experience
+            Customize your Sticky Notes experience
           </p>
         </div>
 

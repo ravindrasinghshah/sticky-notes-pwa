@@ -1,16 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import type { NoteWithBuckets } from "@shared/schema";
+import { useStateValue } from "@/providers/StateProvider.tsx";
+import { storage } from "@/data";
+import type { NoteWithBuckets } from "@/data/schema";
 
 interface SearchBarProps {
-  onSearch: (query: string, bucketId?: string) => void;
-  onResults: (results: NoteWithBuckets[]) => void;
-  currentBucketId?: string | null;
+  onSearch: (query: string) => void;
+  currentBucketId?: string | null; // Keep for potential future use
 }
 
-export default function SearchBar({ onSearch, onResults, currentBucketId }: SearchBarProps) {
+export default function SearchBar({
+  onSearch,
+  currentBucketId,
+}: SearchBarProps) {
+  const [{ user }] = useStateValue();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -23,29 +28,10 @@ export default function SearchBar({ onSearch, onResults, currentBucketId }: Sear
     return () => clearTimeout(timer);
   }, [query]);
 
-  // Search query
-  const { data: searchResults = [] } = useQuery<NoteWithBuckets[]>({
-    queryKey: ["/api/search", { q: debouncedQuery, bucketId: currentBucketId }],
-    enabled: debouncedQuery.length > 0,
-    queryFn: async () => {
-      const params = new URLSearchParams({ q: debouncedQuery });
-      if (currentBucketId) {
-        params.append("bucketId", currentBucketId);
-      }
-      
-      const res = await fetch(`/api/search?${params}`, {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
-      return res.json();
-    },
-  });
-
-  // Update parent component with search state and results
+  // Update parent component with search state
   useEffect(() => {
-    onSearch(debouncedQuery, currentBucketId || undefined);
-    onResults(searchResults);
-  }, [debouncedQuery, currentBucketId, searchResults, onSearch, onResults]);
+    onSearch(debouncedQuery); // Search across all buckets, not just current one
+  }, [debouncedQuery, onSearch]);
 
   return (
     <div className="relative">

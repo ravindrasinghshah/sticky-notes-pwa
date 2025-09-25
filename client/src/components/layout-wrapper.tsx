@@ -6,7 +6,6 @@ interface LayoutWrapperProps {
   children: ReactNode;
   showSearch?: boolean;
   onSearch?: (query: string, bucketId?: string) => void;
-  onSearchResults?: (results: any[]) => void;
   currentBucketId?: string;
 }
 
@@ -18,7 +17,6 @@ export default function LayoutWrapper({
   children, 
   showSearch = false, 
   onSearch, 
-  onSearchResults, 
   currentBucketId 
 }: LayoutWrapperProps) {
   return (
@@ -26,7 +24,6 @@ export default function LayoutWrapper({
       <AuthLayout 
         showSearch={showSearch}
         onSearch={onSearch}
-        onSearchResults={onSearchResults}
         currentBucketId={currentBucketId}
       >
         {children}

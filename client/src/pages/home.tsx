@@ -1,15 +1,15 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useRoute } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
+import { useStateValue } from "@/providers/StateProvider.tsx";
+import { storage } from "@/data";
 import type {
   BucketWithCount,
   NoteWithBuckets,
   Bucket,
   Note,
-} from "@shared/schema";
+} from "@/data/schema";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,6 +28,8 @@ import LayoutWrapper from "@/components/layout-wrapper";
 
 export default function Home() {
   const { toast } = useToast();
+  const [{ user }] = useStateValue();
+  const queryClient = useQueryClient();
   const [location, setLocation] = useLocation();
   const [match, params] = useRoute("/bucket/:bucketId");
 
@@ -38,23 +40,34 @@ export default function Home() {
   const [showBucketManager, setShowBucketManager] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<NoteWithBuckets[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
   // Fetch buckets
   const { data: buckets = [], isLoading: bucketsLoading } = useQuery<
     BucketWithCount[]
   >({
-    queryKey: ["/api/buckets"],
-    enabled: true, // AuthGuard handles authentication
+    queryKey: ["buckets"],
+    queryFn: async () => {
+      return await storage.getUserBuckets();
+    },
+    enabled: !!user?.uid,
   });
 
   // Fetch notes for selected bucket
-  const { data: notes = [], isLoading: notesLoading } = useQuery<
+  const { data: notes = [], isLoading: notesLoading, error: notesError } = useQuery<
     NoteWithBuckets[]
   >({
-    queryKey: ["/api/buckets", selectedBucketId, "notes"],
-    enabled: !!selectedBucketId,
+    queryKey: ["notes", selectedBucketId],
+    queryFn: async () => {
+      if (!selectedBucketId) {
+        throw new Error("No bucket selected");
+      }
+      console.log("Fetching notes for bucket:", selectedBucketId);
+      const result = await storage.getBucketNotes(selectedBucketId);
+      console.log("Notes fetched:", result);
+      return result;
+    },
+    enabled: !!user?.uid && !!selectedBucketId,
   });
 
   // Get current bucket info
@@ -65,16 +78,16 @@ export default function Home() {
     if (buckets.length > 0 && !selectedBucketId) {
       const defaultBucket = buckets[0];
       setSelectedBucketId(defaultBucket.id);
-      setLocation(`/bucket/${defaultBucket.id}`);
+      setLocation(`/home/bucket/${defaultBucket.id}`);
     }
   }, [buckets, selectedBucketId, setLocation]);
 
   // Handle bucket selection
   const handleBucketSelect = (bucketId: string) => {
+    console.log("Bucket selected:", bucketId);
     setSelectedBucketId(bucketId);
-    setLocation(`/bucket/${bucketId}`);
+    setLocation(`/home/bucket/${bucketId}`);
     setSearchQuery("");
-    setSearchResults([]);
     setIsSearching(false);
   };
 
@@ -94,31 +107,18 @@ export default function Home() {
   // Delete note mutation
   const deleteNoteMutation = useMutation({
     mutationFn: async (noteId: string) => {
-      const res = await fetch(`/api/notes/${noteId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return await storage.deleteNote(noteId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/buckets"] });
+      queryClient.invalidateQueries({ queryKey: ["buckets"] });
+      queryClient.invalidateQueries({ queryKey: ["notes", selectedBucketId] });
       toast({
         title: "Success",
         description: "Note deleted successfully",
       });
     },
     onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
+      console.error("Error deleting note:", error);
       toast({
         title: "Error",
         description: "Failed to delete note",
@@ -128,19 +128,23 @@ export default function Home() {
   });
 
   // Handle search
-  const handleSearch = useCallback((query: string, bucketId?: string) => {
+  const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
     if (query.trim()) {
       setIsSearching(true);
     } else {
       setIsSearching(false);
-      setSearchResults([]);
     }
   }, []);
 
-  const handleSearchResults = useCallback((results: NoteWithBuckets[]) => {
-    setSearchResults(results);
-  }, []);
+  // Search query - moved from SearchBar to parent component
+  const { data: searchResults = [] } = useQuery<NoteWithBuckets[]>({
+    queryKey: ["search", searchQuery],
+    enabled: searchQuery.length > 0 && !!user?.uid,
+    queryFn: async () => {
+      return await storage.searchNotes(searchQuery); // Search across all buckets
+    },
+  });
 
 
   // Get note color classes
@@ -184,12 +188,22 @@ export default function Home() {
   };
 
   const displayNotes = isSearching ? searchResults : notes;
+  
+  // Debug logging
+  console.log("Current state:", {
+    selectedBucketId,
+    notes: notes.length,
+    notesLoading,
+    notesError,
+    isSearching,
+    searchResults: searchResults.length,
+    displayNotes: displayNotes.length
+  });
 
   return (
     <LayoutWrapper
       showSearch={true}
       onSearch={handleSearch}
-      onSearchResults={handleSearchResults}
       currentBucketId={selectedBucketId || undefined}
     >
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -345,24 +359,36 @@ export default function Home() {
                         </p>
 
                         <div className="mt-4 flex items-end justify-between">
-                          {note.sharedBuckets.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {note.sharedBuckets.slice(0, 2).map((bucket) => (
-                                <Badge
-                                  key={bucket.id}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {bucket.name}
-                                </Badge>
-                              ))}
-                              {note.sharedBuckets.length > 2 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{note.sharedBuckets.length - 2}
-                                </Badge>
-                              )}
-                            </div>
-                          )}
+                          <div className="flex flex-wrap gap-1">
+                            {/* Show primary bucket in search results */}
+                            {isSearching && (
+                              <Badge
+                                variant="default"
+                                className="text-xs"
+                              >
+                                {buckets.find(b => b.id === note.primaryBucketId)?.name || 'Unknown Bucket'}
+                              </Badge>
+                            )}
+                            {/* Show shared buckets */}
+                            {note.sharedBuckets.length > 0 && (
+                              <>
+                                {note.sharedBuckets.slice(0, isSearching ? 1 : 2).map((bucket) => (
+                                  <Badge
+                                    key={bucket.id}
+                                    variant="outline"
+                                    className="text-xs"
+                                  >
+                                    {bucket.name}
+                                  </Badge>
+                                ))}
+                                {note.sharedBuckets.length > (isSearching ? 1 : 2) && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{note.sharedBuckets.length - (isSearching ? 1 : 2)}
+                                  </Badge>
+                                )}
+                              </>
+                            )}
+                          </div>
                           <div
                             className="text-xs opacity-70 ml-auto"
                             data-testid={`text-note-date-${note.id}`}

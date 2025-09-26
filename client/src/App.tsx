@@ -13,6 +13,9 @@ const Home = lazy(() => import("@/pages/home"));
 const Landing = lazy(() => import("@/pages/landing"));
 const Profile = lazy(() => import("@/pages/profile"));
 const Settings = lazy(() => import("@/pages/settings"));
+const PrivacyPolicy = lazy(() => import("@/pages/privacy-policy"));
+const TermsOfService = lazy(() => import("@/pages/terms-of-service"));
+const CookiePolicy = lazy(() => import("@/pages/cookie-policy"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 function Router() {
@@ -25,6 +28,9 @@ function Router() {
           <Route path="/home/bucket/:bucketId" component={Home} />
           <Route path="/profile" component={Profile} />
           <Route path="/settings" component={Settings} />
+          <Route path="/privacy-policy" component={PrivacyPolicy} />
+          <Route path="/terms-of-service" component={TermsOfService} />
+          <Route path="/cookie-policy" component={CookiePolicy} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>

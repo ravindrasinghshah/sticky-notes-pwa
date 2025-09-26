@@ -19,7 +19,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   // Define which routes require authentication
   const protectedRoutes = ["/home", "/profile", "/settings"];
-  const publicRoutes = ["/", "/landing", "/about", "/contact"];
+  const publicRoutes = ["/", "/landing", "/about", "/contact", "/privacy-policy", "/terms-of-service", "/cookie-policy"];
   const landingRoutes = ["/", "/landing"]; // Routes that should redirect authenticated users
 
   const currentPath = window.location.pathname;

@@ -1,14 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  StickyNote,
-  Smartphone,
-  Cloud,
-  Shield,
-} from "lucide-react";
+import { StickyNote, Smartphone, Cloud, Shield } from "lucide-react";
 import { SignInWithGoogle } from "@/components/signin/signin-with-google";
 
 export default function Landing() {
-
   const features = [
     {
       icon: <Smartphone className="w-6 h-6" />,
@@ -37,10 +31,10 @@ export default function Landing() {
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
       >
-        <source src="/src/assets/landing-page-bg.mp4" type="video/mp4" />
+        <source src="/landing-page-bg.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-      
+
       {/* Dark overlay for better text readability */}
       <div className="absolute inset-0 bg-black/60"></div>
 
@@ -54,12 +48,8 @@ export default function Landing() {
                 <StickyNote className="text-white text-3xl" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-white">
-                  Stickee Notes
-                </h1>
-                <p className="text-lg text-white/80">
-                  Smart sticky notes app
-                </p>
+                <h1 className="text-4xl font-bold text-white">Stickee Notes</h1>
+                <p className="text-lg text-white/80">Smart sticky notes app</p>
               </div>
             </div>
 
@@ -104,14 +94,12 @@ export default function Landing() {
                   <h1 className="text-2xl font-bold text-white mb-2">
                     Welcome Back
                   </h1>
-                  <p className="text-white/80">
-                    Sign in to your account
-                  </p>
+                  <p className="text-white/80">Sign in to your account</p>
                 </div>
 
                 <div className="space-y-4">
                   <SignInWithGoogle />
-                  
+
                   <p className="text-center text-sm text-white/80">
                     Sign in with your Google account to get started
                   </p>
@@ -127,15 +115,24 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row justify-between items-center space-y-2 lg:space-y-0">
             <div className="flex items-center space-x-6 text-sm text-white/80">
-              <button className="hover:text-white transition-colors">
+              <a
+                href="/privacy-policy"
+                className="hover:text-white transition-colors"
+              >
                 Privacy Policy
-              </button>
-              <button className="hover:text-white transition-colors">
+              </a>
+              <a
+                href="/terms-of-service"
+                className="hover:text-white transition-colors"
+              >
                 Terms of Service
-              </button>
-              <button className="hover:text-white transition-colors">
+              </a>
+              <a
+                href="/cookie-policy"
+                className="hover:text-white transition-colors"
+              >
                 Cookie Policy
-              </button>
+              </a>
             </div>
             <div className="text-sm text-white/80">
               © {new Date().getFullYear()} Stickee Notes. All rights reserved.

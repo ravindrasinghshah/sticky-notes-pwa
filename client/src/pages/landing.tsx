@@ -1,136 +1,148 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { StickyNote } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+  StickyNote,
+  Smartphone,
+  Cloud,
+  Shield,
+} from "lucide-react";
 import { SignInWithGoogle } from "@/components/signin/signin-with-google";
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
 
 export default function Landing() {
-  const [showSignup, setShowSignup] = useState(false);
 
-  const form = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
+  const features = [
+    {
+      icon: <Smartphone className="w-6 h-6" />,
+      title: "Mobile First",
+      description: "Optimized for mobile devices with offline support",
     },
-  });
-
-  const onSubmit = (data: LoginForm) => {
-    // For now, redirect to OAuth login - can be extended for email/password auth
-    console.log("Form data:", data);
-    window.location.href = "/";
-  };
+    {
+      icon: <Cloud className="w-6 h-6" />,
+      title: "Cloud Sync",
+      description: "Your notes sync across all your devices instantly",
+    },
+    {
+      icon: <Shield className="w-6 h-6" />,
+      title: "Secure & Private",
+      description: "Your data is protected with industry-standard security",
+    },
+  ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/10 px-4">
-      <div className="w-full max-w-md">
-        <Card className="shadow-xl border border-border">
-          <CardContent className="p-8">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-accent rounded-full mx-auto mb-4 flex items-center justify-center">
-                <StickyNote className="text-accent-foreground text-2xl" />
+    <div className="h-screen relative overflow-hidden flex flex-col">
+      {/* Full Page Video Background */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="/src/assets/landing-page-bg.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      
+      {/* Dark overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/60"></div>
+
+      {/* Main Content */}
+      <div className="relative z-10 flex-1 flex">
+        {/* Left Side - App Info (60%) */}
+        <div className="hidden lg:flex lg:w-3/5 flex-col justify-center px-16 py-8">
+          <div className="max-w-lg">
+            <div className="flex items-center mb-6">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mr-4">
+                <StickyNote className="text-white text-3xl" />
               </div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">
-                Sticky Notes App
-              </h1>
-              <p className="text-muted-foreground">
-                Your smart sticky notes companion
-              </p>
+              <div>
+                <h1 className="text-4xl font-bold text-white">
+                  Stickee Notes
+                </h1>
+                <p className="text-lg text-white/80">
+                  Smart sticky notes app
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-4">
-              <SignInWithGoogle />
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-card text-muted-foreground">or</span>
-                </div>
-              </div>
+            <h2 className="text-3xl font-semibold text-white mb-4">
+              Organize Your Thoughts
+            </h2>
+            <p className="text-lg text-white/90 mb-6 leading-relaxed">
+              Capture ideas instantly, organize them smartly, and access them
+              anywhere. Your personal digital workspace that adapts to your
+              workflow.
+            </p>
 
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="Email address"
-                            type="email"
-                            data-testid="input-email"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="Password"
-                            type="password"
-                            data-testid="input-password"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    data-testid="button-signin"
-                  >
-                    Sign In
-                  </Button>
-                </form>
-              </Form>
-
-              <p className="text-center text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <Button
-                  variant="link"
-                  className="p-0 h-auto text-primary"
-                  onClick={() => setShowSignup(!showSignup)}
-                  data-testid="button-signup-toggle"
-                >
-                  Sign up
-                </Button>
-              </p>
+            <div className="space-y-3">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-start space-x-3">
+                  <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-white">
+                    {feature.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">
+                      {feature.title}
+                    </h3>
+                    <p className="text-white/80 text-sm">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        {/* Right Side - Sign In Form (40%) */}
+        <div className="w-full lg:w-2/5 flex items-center justify-center p-6">
+          <div className="w-full max-w-md">
+            <Card className="shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md">
+              <CardContent className="p-6">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <StickyNote className="text-white text-2xl" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-white mb-2">
+                    Welcome Back
+                  </h1>
+                  <p className="text-white/80">
+                    Sign in to your account
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <SignInWithGoogle />
+                  
+                  <p className="text-center text-sm text-white/80">
+                    Sign in with your Google account to get started
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
+
+      {/* Terms and Conditions Footer */}
+      <footer className="relative z-10 bg-black/30 backdrop-blur-sm border-t border-white/20 py-4 px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row justify-between items-center space-y-2 lg:space-y-0">
+            <div className="flex items-center space-x-6 text-sm text-white/80">
+              <button className="hover:text-white transition-colors">
+                Privacy Policy
+              </button>
+              <button className="hover:text-white transition-colors">
+                Terms of Service
+              </button>
+              <button className="hover:text-white transition-colors">
+                Cookie Policy
+              </button>
+            </div>
+            <div className="text-sm text-white/80">
+              © {new Date().getFullYear()} Stickee Notes. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

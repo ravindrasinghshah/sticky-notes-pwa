@@ -1,4 +1,4 @@
-const CACHE_NAME = "stickynotes-app-v3"; // bump version
+const CACHE_NAME = "stickynotes-app-v3.2"; // bump version
 const urlsToCache = [
   "/", // HTML shell
   "/index.html",

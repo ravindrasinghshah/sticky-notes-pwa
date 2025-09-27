@@ -1,4 +1,4 @@
-const CACHE_NAME = "stickynotes-app-v3.3"; // bump version
+const CACHE_NAME = "stickynotes-app-v3.3.1"; // bump version
 const urlsToCache = [
   "/", // HTML shell
   "/index.html",
@@ -37,6 +37,14 @@ self.addEventListener("activate", (event) => {
 
 // Fetch event
 self.addEventListener("fetch", (event) => {
+  // Ignore Firebase Auth endpoints
+  if (
+    url.pathname.startsWith("/__/auth/") ||
+    url.pathname.includes("firebaseapp.com")
+  ) {
+    return; // let network handle it directly
+  }
+
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);

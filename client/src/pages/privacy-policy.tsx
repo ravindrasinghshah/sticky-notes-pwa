@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
+import { ContactForm } from "@/components/ContactForm";
 
 export default function PrivacyPolicy() {
   const [, setLocation] = useLocation();
@@ -30,13 +31,15 @@ export default function PrivacyPolicy() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              Stickee Notes ("we," "our," or "us") is committed to protecting your privacy. 
-              This Privacy Policy explains how we collect, use, disclose, and safeguard your 
-              information when you use our sticky notes application.
+              Stickee Notes ("we," "our," or "us") is committed to protecting
+              your privacy. This Privacy Policy explains how we collect, use,
+              disclose, and safeguard your information when you use our sticky
+              notes application.
             </p>
             <p>
-              Please read this privacy policy carefully. If you do not agree with the terms 
-              of this privacy policy, please do not access the application.
+              Please read this privacy policy carefully. If you do not agree
+              with the terms of this privacy policy, please do not access the
+              application.
             </p>
           </CardContent>
         </Card>
@@ -47,9 +50,12 @@ export default function PrivacyPolicy() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="text-lg font-semibold mb-2">Personal Information</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Personal Information
+              </h3>
               <p>
-                We may collect personal information that you voluntarily provide to us when you:
+                We may collect personal information that you voluntarily provide
+                to us when you:
               </p>
               <ul className="list-disc list-inside mt-2 space-y-1">
                 <li>Register for an account using Google authentication</li>
@@ -57,11 +63,14 @@ export default function PrivacyPolicy() {
                 <li>Contact us for support</li>
               </ul>
             </div>
-            
+
             <div>
-              <h3 className="text-lg font-semibold mb-2">Automatically Collected Information</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Automatically Collected Information
+              </h3>
               <p>
-                We may automatically collect certain information about your device and usage, including:
+                We may automatically collect certain information about your
+                device and usage, including:
               </p>
               <ul className="list-disc list-inside mt-2 space-y-1">
                 <li>Device information (browser type, operating system)</li>
@@ -82,9 +91,14 @@ export default function PrivacyPolicy() {
               <li>Provide, operate, and maintain our application</li>
               <li>Improve, personalize, and expand our application</li>
               <li>Understand and analyze how you use our application</li>
-              <li>Develop new products, services, features, and functionality</li>
+              <li>
+                Develop new products, services, features, and functionality
+              </li>
               <li>Communicate with you for customer service and support</li>
-              <li>Send you updates and marketing communications (with your consent)</li>
+              <li>
+                Send you updates and marketing communications (with your
+                consent)
+              </li>
               <li>Process transactions and send related information</li>
               <li>Find and prevent fraud</li>
             </ul>
@@ -97,14 +111,16 @@ export default function PrivacyPolicy() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              We implement appropriate technical and organizational security measures to protect 
-              your personal information against unauthorized access, alteration, disclosure, or 
-              destruction. However, no method of transmission over the internet or electronic 
-              storage is 100% secure.
+              We implement appropriate technical and organizational security
+              measures to protect your personal information against unauthorized
+              access, alteration, disclosure, or destruction. However, no method
+              of transmission over the internet or electronic storage is 100%
+              secure.
             </p>
             <p>
-              Your notes and personal data are stored securely using industry-standard encryption 
-              and are accessible only to you through your authenticated account.
+              Your notes and personal data are stored securely using
+              industry-standard encryption and are accessible only to you
+              through your authenticated account.
             </p>
           </CardContent>
         </Card>
@@ -114,7 +130,10 @@ export default function PrivacyPolicy() {
             <CardTitle>Data Sharing and Disclosure</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p>We do not sell, trade, or otherwise transfer your personal information to third parties except:</p>
+            <p>
+              We do not sell, trade, or otherwise transfer your personal
+              information to third parties except:
+            </p>
             <ul className="list-disc list-inside space-y-1">
               <li>With your explicit consent</li>
               <li>To comply with legal obligations</li>
@@ -139,7 +158,8 @@ export default function PrivacyPolicy() {
               <li>Object to certain processing activities</li>
             </ul>
             <p className="mt-4">
-              To exercise these rights, please contact us using the information provided below.
+              To exercise these rights, please contact us using the information
+              provided below.
             </p>
           </CardContent>
         </Card>
@@ -150,11 +170,17 @@ export default function PrivacyPolicy() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              We use cookies and similar tracking technologies to enhance your experience. 
-              For detailed information about our cookie usage, please see our 
-              <Button variant="link" className="p-0 h-auto" onClick={() => setLocation('/cookie-policy')}>
+              We use cookies and similar tracking technologies to enhance your
+              experience. For detailed information about our cookie usage,
+              please see our
+              <Button
+                variant="link"
+                className="p-0 h-auto"
+                onClick={() => setLocation("/cookie-policy")}
+              >
                 Cookie Policy
-              </Button>.
+              </Button>
+              .
             </p>
           </CardContent>
         </Card>
@@ -165,13 +191,14 @@ export default function PrivacyPolicy() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              We may update this privacy policy from time to time. We will notify you of any 
-              changes by posting the new privacy policy on this page and updating the "Last updated" 
-              date.
+              We may update this privacy policy from time to time. We will
+              notify you of any changes by posting the new privacy policy on
+              this page and updating the "Last updated" date.
             </p>
             <p>
-              You are advised to review this privacy policy periodically for any changes. 
-              Changes to this privacy policy are effective when they are posted on this page.
+              You are advised to review this privacy policy periodically for any
+              changes. Changes to this privacy policy are effective when they
+              are posted on this page.
             </p>
           </CardContent>
         </Card>
@@ -181,14 +208,7 @@ export default function PrivacyPolicy() {
             <CardTitle>Contact Us</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p>
-              If you have any questions about this privacy policy or our privacy practices, 
-              please contact us:
-            </p>
-            <div className="bg-muted p-4 rounded-lg">
-              <p><strong>Email:</strong> privacy@stickeenotes.com</p>
-              <p><strong>Address:</strong> 123 Privacy Street, Data City, DC 12345</p>
-            </div>
+            <ContactForm />
           </CardContent>
         </Card>
       </div>

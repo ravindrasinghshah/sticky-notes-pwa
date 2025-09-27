@@ -83,7 +83,18 @@ export default function Landing() {
         </div>
 
         {/* Right Side - Sign In Form (40%) */}
-        <div className="w-full lg:w-2/5 flex items-center justify-center p-6">
+        <div className="w-full lg:w-2/5 flex flex-col items-center justify-center p-6">
+          {/* App branding for mobile - above the sign-in container */}
+          <div className="lg:hidden text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mr-4">
+                <StickyNote className="text-white text-3xl" />
+              </div>
+            </div>
+            <h1 className="text-4xl font-bold text-white mb-2">Stickee Notes</h1>
+            <p className="text-lg text-white/80">Smart sticky notes app</p>
+          </div>
+
           <div className="w-full max-w-md">
             <Card className="shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md">
               <CardContent className="p-6">

@@ -1,4 +1,4 @@
-const CACHE_NAME = "stickynotes-app-v3.3.1"; // bump version
+const CACHE_NAME = "stickynotes-app-v3.3.2"; // bump version
 const urlsToCache = [
   "/", // HTML shell
   "/index.html",
@@ -37,6 +37,8 @@ self.addEventListener("activate", (event) => {
 
 // Fetch event
 self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+
   // Ignore Firebase Auth endpoints
   if (
     url.pathname.startsWith("/__/auth/") ||
@@ -46,8 +48,6 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (event.request.method !== "GET") return;
-
-  const url = new URL(event.request.url);
 
   // API requests -> network first
   if (url.pathname.startsWith("/api/")) {

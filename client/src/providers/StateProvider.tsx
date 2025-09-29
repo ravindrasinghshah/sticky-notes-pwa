@@ -3,6 +3,7 @@ import { AppState, Action } from "./Reducer";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { actionTypes } from "./Reducer";
+import { cacheUtils } from "../lib/localStorageCache";
 
 // Define types for better type safety
 interface StateProviderProps {
@@ -54,8 +55,9 @@ export const StateProvider = ({
           authType: "google" // You might want to determine this based on provider
         });
       } else {
-        // User is signed out
+        // User is signed out - clear cache
         console.log("Dispatching LOGOUT action");
+        cacheUtils.clearAllCache();
         dispatch({ type: actionTypes.LOGOUT });
       }
       

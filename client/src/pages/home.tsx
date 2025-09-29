@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCachedBuckets, useCachedNotes } from "@/hooks/use-cached-query";
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useRoute } from "wouter";
 import { useToast } from "@/hooks/use-toast";
@@ -67,33 +68,11 @@ export default function Home() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [bucketToDelete, setBucketToDelete] = useState<BucketWithCount | null>(null);
 
-  // Fetch buckets
-  const { data: buckets = [], isLoading: bucketsLoading } = useQuery<
-    BucketWithCount[]
-  >({
-    queryKey: ["buckets"],
-    queryFn: async () => {
-      return await storage.getUserBuckets();
-    },
-    enabled: !!user?.uid,
-  });
+  // Fetch buckets with cache-first strategy
+  const { data: buckets = [], isLoading: bucketsLoading } = useCachedBuckets(user?.uid);
 
-  // Fetch notes for selected bucket
-  const { data: notes = [], isLoading: notesLoading, error: notesError } = useQuery<
-    NoteWithBuckets[]
-  >({
-    queryKey: ["notes", selectedBucketId],
-    queryFn: async () => {
-      if (!selectedBucketId) {
-        throw new Error("No bucket selected");
-      }
-      console.log("Fetching notes for bucket:", selectedBucketId);
-      const result = await storage.getBucketNotes(selectedBucketId);
-      console.log("Notes fetched:", result);
-      return result;
-    },
-    enabled: !!user?.uid && !!selectedBucketId,
-  });
+  // Fetch notes for selected bucket with cache-first strategy
+  const { data: notes = [], isLoading: notesLoading, error: notesError } = useCachedNotes(selectedBucketId || undefined, user?.uid);
 
   // Get current bucket info
   const currentBucket = buckets.find((b) => b.id === selectedBucketId);
@@ -436,7 +415,7 @@ export default function Home() {
                 </div>
               ) : displayNotes.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {displayNotes.map((note) => (
+                  {displayNotes.map((note: NoteWithBuckets) => (
                     <Card
                       key={note.id}
                       className={`cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 group sticky-note min-h-[200px] ${getNoteColorClasses(
@@ -505,7 +484,7 @@ export default function Home() {
                             {/* Show shared buckets */}
                             {note.sharedBuckets.length > 0 && (
                               <>
-                                {note.sharedBuckets.slice(0, isSearching ? 1 : 2).map((bucket) => (
+                                {note.sharedBuckets.slice(0, isSearching ? 1 : 2).map((bucket: Bucket) => (
                                   <Badge
                                     key={bucket.id}
                                     variant="outline"

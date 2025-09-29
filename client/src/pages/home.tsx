@@ -22,9 +22,28 @@ import {
   Share2,
   Trash2,
   MoreVertical,
+  Edit,
+  Briefcase,
+  Home as HomeIcon,
+  Lightbulb,
+  ShoppingCart,
+  Star,
+  Heart,
+  Book,
+  Coffee,
+  Camera,
+  Music,
+  MapPin,
+  Gift,
+  Folder,
+  Archive,
+  Bookmark,
+  Tag,
+  Flag,
 } from "lucide-react";
 import NoteEditor from "@/components/note-editor";
 import BucketManager from "@/components/bucket-manager";
+import BucketEditor from "@/components/bucket-editor";
 import DeleteBucketDialog from "@/components/delete-bucket-dialog";
 import LayoutWrapper from "@/components/layout-wrapper";
 
@@ -41,6 +60,8 @@ export default function Home() {
   const [showNoteEditor, setShowNoteEditor] = useState(false);
   const [showBucketManager, setShowBucketManager] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [showBucketEditor, setShowBucketEditor] = useState(false);
+  const [editingBucket, setEditingBucket] = useState<BucketWithCount | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -107,6 +128,13 @@ export default function Home() {
     e.stopPropagation(); // Prevent bucket selection
     setBucketToDelete(bucket);
     setShowDeleteDialog(true);
+  };
+
+  // Handle bucket editing
+  const handleEditBucket = (bucket: BucketWithCount, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent bucket selection
+    setEditingBucket(bucket);
+    setShowBucketEditor(true);
   };
 
   const handleBucketDeleted = () => {
@@ -212,6 +240,52 @@ export default function Home() {
     }
   };
 
+  const getBucketIcon = (iconName: string) => {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+      briefcase: Briefcase,
+      home: HomeIcon,
+      lightbulb: Lightbulb,
+      "shopping-cart": ShoppingCart,
+      star: Star,
+      heart: Heart,
+      book: Book,
+      coffee: Coffee,
+      camera: Camera,
+      music: Music,
+      "map-pin": MapPin,
+      gift: Gift,
+      folder: Folder,
+      archive: Archive,
+      bookmark: Bookmark,
+      tag: Tag,
+      flag: Flag,
+    };
+    
+    const IconComponent = iconMap[iconName] || Briefcase;
+    return IconComponent;
+  };
+
+  const getBucketIconColorClass = (color: string) => {
+    switch (color) {
+      case "primary":
+        return "text-primary";
+      case "accent":
+        return "text-accent";
+      case "green":
+        return "text-green-500";
+      case "red":
+        return "text-red-500";
+      case "blue":
+        return "text-blue-500";
+      case "purple":
+        return "text-purple-500";
+      case "pink":
+        return "text-pink-500";
+      default:
+        return "text-primary";
+    }
+  };
+
   const displayNotes = isSearching ? searchResults : notes;
   
   // Debug logging
@@ -258,7 +332,7 @@ export default function Home() {
                       : buckets.map((bucket) => (
                           <div
                             key={bucket.id}
-                            className={`group p-3 rounded-md cursor-pointer border transition-all hover:shadow-sm ${
+                            className={`group relative p-4 rounded-lg cursor-pointer border transition-all hover:shadow-md ${
                               selectedBucketId === bucket.id
                                 ? "bg-muted border-border"
                                 : "hover:bg-muted/50 border-transparent hover:border-border"
@@ -266,29 +340,52 @@ export default function Home() {
                             onClick={() => handleBucketSelect(bucket.id)}
                             data-testid={`bucket-item-${bucket.id}`}
                           >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center">
-                                <div
-                                  className={`w-3 h-3 rounded-full mr-3 ${getBucketColorClass(
-                                    bucket.color
-                                  )}`}
-                                ></div>
-                                <span className="font-medium text-foreground">
-                                  {bucket.name}
-                                </span>
+                            {/* Main content */}
+                            <div className="flex items-center gap-3">
+                              <div className="flex-shrink-0">
+                                {(() => {
+                                  const IconComponent = getBucketIcon(bucket.icon);
+                                  return (
+                                    <IconComponent 
+                                      className={`w-5 h-5 ${getBucketIconColorClass(bucket.color)}`}
+                                    />
+                                  );
+                                })()}
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="secondary" className="text-xs">
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-foreground truncate">
+                                  {bucket.name}
+                                </div>
+                              </div>
+                              <div className="flex-shrink-0">
+                                <Badge variant="secondary" className="text-xs px-2 py-1">
                                   {bucket.noteCount}
                                 </Badge>
+                              </div>
+                            </div>
+
+                            {/* Floating action buttons */}
+                            <div className="absolute top-2 right-2 bg-background rounded-lg p-1 shadow-lg border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <div className="flex gap-1">
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground transition-all"
+                                  className="h-7 w-7 p-0 hover:bg-primary hover:text-primary-foreground"
+                                  onClick={(e) => handleEditBucket(bucket, e)}
+                                  data-testid={`button-edit-bucket-${bucket.id}`}
+                                  title="Edit bucket"
+                                >
+                                  <Edit className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 w-7 p-0 hover:bg-destructive hover:text-destructive-foreground"
                                   onClick={(e) => handleDeleteBucket(bucket, e)}
                                   data-testid={`button-delete-bucket-${bucket.id}`}
+                                  title="Delete bucket"
                                 >
-                                  <Trash2 className="h-3 w-3" />
+                                  <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
                               </div>
                             </div>
@@ -482,6 +579,18 @@ export default function Home() {
         <BucketManager
           isOpen={showBucketManager}
           onClose={() => setShowBucketManager(false)}
+        />
+      )}
+
+      {/* Bucket Editor Modal */}
+      {showBucketEditor && (
+        <BucketEditor
+          isOpen={showBucketEditor}
+          onClose={() => {
+            setShowBucketEditor(false);
+            setEditingBucket(null);
+          }}
+          bucket={editingBucket}
         />
       )}
 

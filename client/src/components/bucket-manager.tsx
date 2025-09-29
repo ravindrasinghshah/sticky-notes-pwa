@@ -34,6 +34,11 @@ import {
   Music,
   MapPin,
   Gift,
+  Folder,
+  Archive,
+  Bookmark,
+  Tag,
+  Flag,
 } from "lucide-react";
 
 interface BucketManagerProps {
@@ -54,6 +59,11 @@ const ICON_OPTIONS = [
   { value: "music", label: "Music", icon: Music },
   { value: "map-pin", label: "Location", icon: MapPin },
   { value: "gift", label: "Gift", icon: Gift },
+  { value: "folder", label: "Folder", icon: Folder },
+  { value: "archive", label: "Archive", icon: Archive },
+  { value: "bookmark", label: "Bookmark", icon: Bookmark },
+  { value: "tag", label: "Tag", icon: Tag },
+  { value: "flag", label: "Flag", icon: Flag },
 ];
 
 const COLOR_OPTIONS = [

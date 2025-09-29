@@ -4,12 +4,16 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Palette, Shield, Database } from "lucide-react";
 import LayoutWrapper from "@/components/layout-wrapper";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useTheme } from "@/providers/ThemeProvider";
 
 /**
  * Another example protected page using the new layout system
  * Shows how to create pages with different content but same layout
  */
 export default function Settings() {
+  const { theme } = useTheme();
+
   return (
     <LayoutWrapper>
       <div className="max-w-4xl mx-auto">
@@ -30,8 +34,13 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="dark-mode">Dark Mode</Label>
-                <Switch id="dark-mode" />
+                <div className="space-y-0.5">
+                  <Label htmlFor="theme-toggle">Theme</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Choose your preferred theme
+                  </p>
+                </div>
+                <ThemeToggle />
               </div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="compact-view">Compact View</Label>

@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { lazy, Suspense } from "react";
 import { queryClient } from "@/lib/queryClient";
 import { StateProvider } from "@/providers/StateProvider.tsx";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import reducer, { initialState } from "@/providers/Reducer";
 import AuthGuard from "@/security/AuthGuard";
 import { LoadingSpinner } from "@/components/loading-spinner";
@@ -40,12 +41,14 @@ function Router() {
 
 function App() {
   return (
-    <StateProvider reducer={reducer} initialState={initialState}>
-      <QueryClientProvider client={queryClient}>
-        <Router />
-        <Toaster />
-      </QueryClientProvider>
-    </StateProvider>
+    <ThemeProvider defaultTheme="system" storageKey="sticky-notes-theme">
+      <StateProvider reducer={reducer} initialState={initialState}>
+        <QueryClientProvider client={queryClient}>
+          <Router />
+          <Toaster />
+        </QueryClientProvider>
+      </StateProvider>
+    </ThemeProvider>
   );
 }
 

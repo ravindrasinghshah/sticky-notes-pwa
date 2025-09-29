@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { StickyNote, Bell, LogOut } from "lucide-react";
 import SearchBar from "@/components/search-bar";
+import { ThemeToggleSimple } from "@/components/theme-toggle";
 import { logOut } from "../../../firebase-config";
 
 interface AuthLayoutProps {
@@ -70,6 +71,7 @@ export default function AuthLayout({
 
             {/* User Menu */}
             <div className="flex items-center space-x-4">
+              <ThemeToggleSimple />
               <Button
                 variant="ghost"
                 size="icon"

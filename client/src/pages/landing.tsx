@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { StickyNote, Smartphone, Cloud, Shield } from "lucide-react";
 import { SignInWithGoogle } from "@/components/signin/signin-with-google";
+import { ThemeToggleSimple } from "@/components/theme-toggle";
 
 export default function Landing() {
   const features = [
@@ -37,6 +38,11 @@ export default function Landing() {
 
       {/* Dark overlay for better text readability */}
       <div className="absolute inset-0 bg-black/60"></div>
+
+      {/* Theme Toggle - Top Right */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggleSimple />
+      </div>
 
       {/* Main Content */}
       <div className="relative z-10 flex-1 flex">

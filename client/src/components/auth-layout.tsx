@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { StickyNote, Bell, LogOut } from "lucide-react";
+import { StickyNote, LogOut } from "lucide-react";
 import SearchBar from "@/components/search-bar";
 import { ThemeToggleSimple } from "@/components/theme-toggle";
 import { logOut } from "../../../firebase-config";
@@ -55,7 +55,7 @@ export default function AuthLayout({
                 <StickyNote className="text-accent-foreground" />
               </div>
               <h1 className="text-xl font-semibold text-foreground">
-              Stickee Notes
+                Stickee Notes
               </h1>
             </div>
 
@@ -72,14 +72,6 @@ export default function AuthLayout({
             {/* User Menu */}
             <div className="flex items-center space-x-4">
               <ThemeToggleSimple />
-              <Button
-                variant="ghost"
-                size="icon"
-                title="Notifications"
-                data-testid="button-notifications"
-              >
-                <Bell className="h-4 w-4" />
-              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar

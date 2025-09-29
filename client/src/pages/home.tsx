@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import NoteContent from "@/components/note-content";
 
 import {
   StickyNote,
@@ -463,12 +464,11 @@ export default function Home() {
                           </div>
                         </div>
 
-                        <p
+                        <NoteContent
+                          content={note.content}
                           className="text-sm leading-relaxed flex-1 line-clamp-6 whitespace-pre-line"
                           data-testid={`text-note-content-${note.id}`}
-                        >
-                          {note.content}
-                        </p>
+                        />
 
                         <div className="mt-4 flex items-end justify-between">
                           <div className="flex flex-wrap gap-1">

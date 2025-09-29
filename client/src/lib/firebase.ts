@@ -1,12 +1,12 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp, FirebaseApp } from "firebase/app";
+import { initializeApp, FirebaseApp, getApps, getApp } from "firebase/app";
 import { getAnalytics, Analytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider, Auth } from "firebase/auth"; // Import the Auth service
 import { getFirestore, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD1glfWlK1Xon2_Oojz7aNr67mUlrkxR7U",
-  authDomain: "sticky-notes-fc76b.firebaseapp.com",
+  authDomain: "stickee-notes.web.app",
   projectId: "sticky-notes-fc76b",
   storageBucket: "sticky-notes-fc76b.firebasestorage.app",
   messagingSenderId: "157757958250",
@@ -15,7 +15,10 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app: FirebaseApp = initializeApp(firebaseConfig);
+const app: FirebaseApp = !getApps().length
+  ? initializeApp(firebaseConfig)
+  : getApp();
+console.log("Firebase App Initialized or Retrieved!");
 const analytics: Analytics = getAnalytics(app);
 const auth: Auth = getAuth(app);
 const googleAuthProvider: GoogleAuthProvider = new GoogleAuthProvider();

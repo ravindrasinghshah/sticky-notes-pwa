@@ -6,7 +6,7 @@ import { getFirestore, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD1glfWlK1Xon2_Oojz7aNr67mUlrkxR7U",
-  authDomain: "sticky-notes-fc76b.firebaseapp.com",
+  authDomain: "stickee-notes.web.app",
   projectId: "sticky-notes-fc76b",
   storageBucket: "sticky-notes-fc76b.firebasestorage.app",
   messagingSenderId: "157757958250",

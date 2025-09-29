@@ -29,6 +29,7 @@ export const convertFirebaseNoteToNote = (firebaseNote: FirebaseNote): Note => (
   fontFamily: firebaseNote.fontFamily,
   userId: firebaseNote.userId,
   primaryBucketId: firebaseNote.primaryBucketId,
+  pinned: firebaseNote.pinned,
   createdAt: firebaseNote.createdAt.toDate(),
   updatedAt: firebaseNote.updatedAt.toDate(),
 });
@@ -65,6 +66,7 @@ export const convertNoteToFirebaseNote = (note: Omit<Note, 'id' | 'userId' | 'cr
   color: note.color,
   fontFamily: note.fontFamily,
   primaryBucketId: note.primaryBucketId,
+  pinned: note.pinned,
 });
 
 // Conversion functions for insert types (with default values)
@@ -81,4 +83,5 @@ export const convertInsertNoteToFirebaseNote = (note: import("./schema").InsertN
   color: note.color || 'accent',
   fontFamily: note.fontFamily || 'Inter',
   primaryBucketId: note.primaryBucketId,
+  pinned: note.pinned || false,
 });

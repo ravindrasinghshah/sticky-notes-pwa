@@ -269,10 +269,14 @@ export class FirebaseStorage implements IStorage {
         });
       }
       
-      // Sort by updatedAt
-      notesWithBuckets.sort((a, b) => 
-        b.updatedAt.toMillis() - a.updatedAt.toMillis()
-      );
+      // Sort by pinned status first, then by updatedAt
+      notesWithBuckets.sort((a, b) => {
+        // Pinned notes first
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        // Then by updatedAt
+        return b.updatedAt.toMillis() - a.updatedAt.toMillis();
+      });
       
       return notesWithBuckets;
     } catch (error) {

@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Type, Palette } from "lucide-react";
+import { X, Type, Palette, Pin, PinOff } from "lucide-react";
 
 interface NoteEditorProps {
   note?: Note | null;
@@ -46,6 +46,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
   const [content, setContent] = useState("");
   const [color, setColor] = useState("accent");
   const [fontFamily, setFontFamily] = useState("Inter");
+  const [pinned, setPinned] = useState(false);
   const [primaryBucketId, setPrimaryBucketId] = useState(selectedBucketId);
   const [selectedBuckets, setSelectedBuckets] = useState<string[]>([]);
 
@@ -58,6 +59,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
       setContent(note.content);
       setColor(note.color);
       setFontFamily(note.fontFamily);
+      setPinned(note.pinned);
       setPrimaryBucketId(note.primaryBucketId);
       // TODO: Load shared buckets for this note
       setSelectedBuckets([]);
@@ -66,6 +68,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
       setContent("");
       setColor("accent");
       setFontFamily("Inter");
+      setPinned(false);
       setPrimaryBucketId(selectedBucketId);
       setSelectedBuckets([]);
     }
@@ -136,6 +139,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
       content: content.trim(),
       color,
       fontFamily,
+      pinned,
       primaryBucketId,
       bucketIds: [primaryBucketId, ...selectedBuckets],
     };
@@ -197,7 +201,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
             </div>
 
             {/* Formatting Options */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
                   <Type className="w-4 h-4 inline mr-1" />
@@ -240,6 +244,33 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
                     />
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  <Pin className="w-4 h-4 inline mr-1" />
+                  Pin Note
+                </label>
+                <Button
+                  type="button"
+                  variant={pinned ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setPinned(!pinned)}
+                  className="w-full justify-start"
+                  data-testid="button-toggle-pin"
+                >
+                  {pinned ? (
+                    <>
+                      <PinOff className="w-4 h-4 mr-2" />
+                      Unpin Note
+                    </>
+                  ) : (
+                    <>
+                      <Pin className="w-4 h-4 mr-2" />
+                      Pin Note
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
 

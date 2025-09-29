@@ -24,6 +24,7 @@ export interface FirebaseNote {
   userId: string;
   primaryBucketId: string;
   sharedBucketIds: string[];
+  pinned: boolean;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

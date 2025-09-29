@@ -40,6 +40,8 @@ import {
   Bookmark,
   Tag,
   Flag,
+  Pin,
+  PinOff,
 } from "lucide-react";
 import NoteEditor from "@/components/note-editor";
 import BucketManager from "@/components/bucket-manager";
@@ -164,6 +166,28 @@ export default function Home() {
       toast({
         title: "Error",
         description: "Failed to delete note",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Toggle pin mutation
+  const togglePinMutation = useMutation({
+    mutationFn: async ({ noteId, pinned }: { noteId: string; pinned: boolean }) => {
+      return await storage.updateNote(noteId, { pinned });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes", selectedBucketId] });
+      toast({
+        title: "Success",
+        description: "Note pin status updated",
+      });
+    },
+    onError: (error) => {
+      console.error("Error toggling pin:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update pin status",
         variant: "destructive",
       });
     },
@@ -444,26 +468,35 @@ export default function Home() {
                 >
                   <CardContent className="p-4 h-full flex flex-col">
                     <div className="flex items-start justify-between mb-3">
-                      <h3
-                        className="font-semibold mb-2 flex-1"
-                        data-testid={`text-note-title-${note.id}`}
-                      >
-                        {note.title}
-                      </h3>
+                      <div className="flex items-center gap-2 flex-1">
+                        {note.pinned && (
+                          <Pin className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                        )}
+                        <h3
+                          className="font-semibold mb-2 flex-1"
+                          data-testid={`text-note-title-${note.id}`}
+                        >
+                          {note.title}
+                        </h3>
+                      </div>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center space-x-1">
-                        {/* <Button
-                              size="icon"
-                              variant="ghost"
-                              className="w-6 h-6 bg-black/10 hover:bg-black/20"
-                              title="Share"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // TODO: Implement share functionality
-                              }}
-                              data-testid={`button-share-${note.id}`}
-                            >
-                              <Share2 className="h-3 w-3" />
-                            </Button> */}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="w-6 h-6 bg-black/10 hover:bg-black/20"
+                          title={note.pinned ? "Unpin note" : "Pin note"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePinMutation.mutate({ noteId: note.id, pinned: !note.pinned });
+                          }}
+                          data-testid={`button-toggle-pin-${note.id}`}
+                        >
+                          {note.pinned ? (
+                            <PinOff className="h-3 w-3" />
+                          ) : (
+                            <Pin className="h-3 w-3" />
+                          )}
+                        </Button>
                         <Button
                           size="icon"
                           variant="ghost"

@@ -388,7 +388,7 @@ export default function Home() {
                         </div>
 
                         <p
-                          className="text-sm leading-relaxed flex-1 line-clamp-6"
+                          className="text-sm leading-relaxed flex-1 line-clamp-6 whitespace-pre-line"
                           data-testid={`text-note-content-${note.id}`}
                         >
                           {note.content}

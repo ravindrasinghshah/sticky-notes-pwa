@@ -128,7 +128,7 @@ A Progressive Web App (PWA) for organizing thoughts and tasks with smart sticky 
    ```
 
 4. **Configure Firebase**
-   - Update `firebase-config.ts` with your Firebase project credentials
+   - Update `client/src/lib/firebase.ts` with your Firebase project credentials
    - Ensure your Firebase project has the following services enabled:
      - Authentication (with Google provider)
      - Firestore Database
@@ -184,7 +184,7 @@ sticky-notes-pwa/
 │   └── index.html           # HTML entry point
 ├── dist/                     # Built application (generated)
 ├── firebase.json            # Firebase configuration
-├── firebase-config.ts       # Firebase SDK configuration
+├── client/src/lib/firebase.ts  # Firebase SDK configuration
 ├── package.json             # Dependencies and scripts
 ├── tailwind.config.ts       # Tailwind CSS configuration
 ├── tsconfig.json           # TypeScript configuration
@@ -202,7 +202,7 @@ The application uses Firebase configuration that should be set up in your Fireba
    - Set up Firebase Hosting
 
 2. **Update Configuration**:
-   - Replace the Firebase config in `firebase-config.ts` with your project's credentials
+   - Replace the Firebase config in `client/src/lib/firebase.ts` with your project's credentials
    - Ensure the Google OAuth client is properly configured
 
 ### Troubleshooting

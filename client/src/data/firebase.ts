@@ -1,6 +1,6 @@
 import { collection, doc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, query, where, orderBy, limit, startAfter, QueryDocumentSnapshot, DocumentData, Timestamp } from "firebase/firestore";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
-import { db, auth } from "../../../firebase-config";
+import { db, auth } from "../lib/firebase";
 
 // Firebase types - User data is managed by Firebase Auth, so we don't need a separate user collection
 

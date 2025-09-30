@@ -12,7 +12,7 @@ import {
 import { StickyNote, LogOut } from "lucide-react";
 import SearchBar from "@/components/search-bar";
 import { ThemeToggleSimple } from "@/components/theme-toggle";
-import { logOut } from "../../../firebase-config";
+import { logOut } from "../lib/firebase";
 
 interface AuthLayoutProps {
   children: ReactNode;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { storage } from "@/data";
@@ -8,9 +8,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Type, Palette, Pin, PinOff } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { X, Type, Palette, Pin, PinOff, Tag, ChevronDown, Check } from "lucide-react";
+import { TAG_DEFINITIONS, getTagDefinitions } from "@/lib/tags";
 
 interface NoteEditorProps {
   note?: Note | null;
@@ -39,7 +51,13 @@ const COLOR_OPTIONS = [
   { value: "orange", label: "Orange", color: "bg-orange-200" },
 ];
 
-export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, onClose }: NoteEditorProps) {
+export default function NoteEditor({
+  note,
+  buckets,
+  selectedBucketId,
+  isOpen,
+  onClose,
+}: NoteEditorProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
@@ -49,6 +67,9 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
   const [pinned, setPinned] = useState(false);
   const [primaryBucketId, setPrimaryBucketId] = useState(selectedBucketId);
   const [selectedBuckets, setSelectedBuckets] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isTagDropdownOpen, setIsTagDropdownOpen] = useState(false);
+  const tagDropdownRef = useRef<HTMLDivElement>(null);
 
   const isEditing = !!note;
 
@@ -61,6 +82,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
       setFontFamily(note.fontFamily);
       setPinned(note.pinned);
       setPrimaryBucketId(note.primaryBucketId);
+      setSelectedTags(note.tags || []);
       // TODO: Load shared buckets for this note
       setSelectedBuckets([]);
     } else {
@@ -71,8 +93,26 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
       setPinned(false);
       setPrimaryBucketId(selectedBucketId);
       setSelectedBuckets([]);
+      setSelectedTags([]);
     }
   }, [note, selectedBucketId]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tagDropdownRef.current && !tagDropdownRef.current.contains(event.target as Node)) {
+        setIsTagDropdownOpen(false);
+      }
+    };
+
+    if (isTagDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isTagDropdownOpen]);
 
   // Create note mutation
   const createNoteMutation = useMutation({
@@ -100,7 +140,9 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
 
   // Update note mutation
   const updateNoteMutation = useMutation({
-    mutationFn: async (noteData: Partial<InsertNote> & { bucketIds: string[] }) => {
+    mutationFn: async (
+      noteData: Partial<InsertNote> & { bucketIds: string[] }
+    ) => {
       return await storage.updateNote(note!.id, noteData, noteData.bucketIds);
     },
     onSuccess: () => {
@@ -124,7 +166,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim() || !content.trim()) {
       toast({
         title: "Validation Error",
@@ -141,6 +183,7 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
       fontFamily,
       pinned,
       primaryBucketId,
+      tags: selectedTags,
       bucketIds: [primaryBucketId, ...selectedBuckets],
     };
 
@@ -153,22 +196,36 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
 
   const toggleBucket = (bucketId: string) => {
     if (bucketId === primaryBucketId) return; // Can't unselect primary bucket
-    
-    setSelectedBuckets(prev => 
-      prev.includes(bucketId) 
-        ? prev.filter(id => id !== bucketId)
+
+    setSelectedBuckets((prev) =>
+      prev.includes(bucketId)
+        ? prev.filter((id) => id !== bucketId)
         : [...prev, bucketId]
+    );
+  };
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId]
     );
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" data-testid="dialog-note-editor">
+      <DialogContent
+        className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+        data-testid="dialog-note-editor"
+      >
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Note" : "Create Note"}</DialogTitle>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col space-y-6 overflow-hidden">
+
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 flex flex-col space-y-6 overflow-hidden"
+        >
           <div className="flex-1 overflow-y-auto space-y-6 pr-2">
             {/* Title */}
             <div>
@@ -185,8 +242,13 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
 
             {/* Primary Bucket */}
             <div>
-              <label className="block text-sm font-medium mb-2">Primary Bucket</label>
-              <Select value={primaryBucketId} onValueChange={setPrimaryBucketId}>
+              <label className="block text-sm font-medium mb-2">
+                Primary Bucket
+              </label>
+              <Select
+                value={primaryBucketId}
+                onValueChange={setPrimaryBucketId}
+              >
                 <SelectTrigger data-testid="select-primary-bucket">
                   <SelectValue placeholder="Select primary bucket" />
                 </SelectTrigger>
@@ -234,8 +296,8 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
                       className={`w-8 h-8 rounded-full border-2 hover:scale-110 transition-transform ${
                         colorOption.color
                       } ${
-                        color === colorOption.value 
-                          ? "border-ring shadow-md" 
+                        color === colorOption.value
+                          ? "border-ring shadow-md"
                           : "border-border"
                       }`}
                       onClick={() => setColor(colorOption.value)}
@@ -278,26 +340,111 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
             <div>
               <label className="block text-sm font-medium mb-2">Content</label>
               <Textarea
+                name="note_content"
                 placeholder="Write your note here..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[200px] resize-none"
+                className="min-h-[170px] resize-none"
                 style={{ fontFamily }}
                 data-testid="textarea-note-content"
                 required
               />
             </div>
+            {/* Tags */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                <Tag className="w-4 h-4 inline mr-1" />
+                Tags
+              </label>
+              
+              {/* Tag Dropdown */}
+              <div className="relative" ref={tagDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsTagDropdownOpen(!isTagDropdownOpen)}
+                  className="w-full flex items-center justify-between px-3 py-2 border border-border rounded-md bg-background hover:bg-muted/50 transition-colors"
+                >
+                  <span className="text-sm text-muted-foreground">
+                    {selectedTags.length > 0 
+                      ? `${selectedTags.length} tag${selectedTags.length !== 1 ? 's' : ''} selected`
+                      : "Select tags..."
+                    }
+                  </span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isTagDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {/* Dropdown Menu */}
+                {isTagDropdownOpen && (
+                  <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {TAG_DEFINITIONS.map((tag) => {
+                      const IconComponent = tag.icon;
+                      const isSelected = selectedTags.includes(tag.id);
+                      return (
+                        <button
+                          key={tag.id}
+                          type="button"
+                          className="w-full flex items-center gap-3 px-3 py-2 hover:bg-muted/50 transition-colors text-left"
+                          onClick={() => {
+                            toggleTag(tag.id);
+                          }}
+                          title={tag.description}
+                        >
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center ${isSelected ? tag.bgColor : 'bg-muted'}`}>
+                            <IconComponent className={`w-3 h-3 ${isSelected ? tag.color : 'text-muted-foreground'}`} />
+                          </div>
+                          <span className="flex-1 text-sm">{tag.label}</span>
+                          {isSelected && <Check className="w-4 h-4 text-primary" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
 
+              {/* Selected Tags Display */}
+              {selectedTags.length > 0 && (
+                <div className="mt-3">
+                  <div className="flex flex-wrap gap-2">
+                    {getTagDefinitions(selectedTags).map((tag) => {
+                      const IconComponent = tag.icon;
+                      return (
+                        <div
+                          key={tag.id}
+                          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${tag.bgColor} ${tag.color}`}
+                        >
+                          <IconComponent className="w-3 h-3" />
+                          {tag.label}
+                          <button
+                            type="button"
+                            onClick={() => toggleTag(tag.id)}
+                            className="ml-1 hover:bg-black/10 rounded-full p-0.5 transition-colors"
+                            title="Remove tag"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
             {/* Additional Buckets */}
             <div>
-              <label className="block text-sm font-medium mb-2">Share with Additional Buckets</label>
+              <label className="block text-sm font-medium mb-2">
+                Share with Additional Buckets
+              </label>
               <div className="flex flex-wrap gap-2">
                 {buckets
-                  .filter(bucket => bucket.id !== primaryBucketId)
+                  .filter((bucket) => bucket.id !== primaryBucketId)
                   .map((bucket) => (
                     <Badge
                       key={bucket.id}
-                      variant={selectedBuckets.includes(bucket.id) ? "default" : "outline"}
+                      variant={
+                        selectedBuckets.includes(bucket.id)
+                          ? "default"
+                          : "outline"
+                      }
                       className="cursor-pointer hover:bg-accent"
                       onClick={() => toggleBucket(bucket.id)}
                       data-testid={`badge-bucket-${bucket.id}`}
@@ -314,7 +461,9 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
           <div className="flex items-center justify-between pt-4 border-t border-border">
             <div className="text-sm text-muted-foreground">
               {isEditing && note?.updatedAt && (
-                <span>Last edited: {new Date(note.updatedAt).toLocaleDateString()}</span>
+                <span>
+                  Last edited: {new Date(note.updatedAt).toLocaleDateString()}
+                </span>
               )}
             </div>
 
@@ -329,7 +478,9 @@ export default function NoteEditor({ note, buckets, selectedBucketId, isOpen, on
               </Button>
               <Button
                 type="submit"
-                disabled={createNoteMutation.isPending || updateNoteMutation.isPending}
+                disabled={
+                  createNoteMutation.isPending || updateNoteMutation.isPending
+                }
                 data-testid="button-save-note"
               >
                 {createNoteMutation.isPending || updateNoteMutation.isPending

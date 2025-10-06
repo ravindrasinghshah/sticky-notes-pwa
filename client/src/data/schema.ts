@@ -52,6 +52,7 @@ export interface Note {
   userId: string;
   primaryBucketId: string;
   pinned: boolean;
+  tags: string[];
   createdAt: Date | null;
   updatedAt: Date | null;
 }
@@ -63,6 +64,7 @@ export interface InsertNote {
   color?: string;
   fontFamily?: string;
   pinned?: boolean;
+  tags?: string[];
 }
 
 export interface NoteWithBuckets extends Note {
@@ -86,4 +88,5 @@ export const insertNoteSchema = z.object({
   color: z.string().optional(),
   fontFamily: z.string().optional(),
   pinned: z.boolean().optional(),
+  tags: z.array(z.string()).optional(),
 });

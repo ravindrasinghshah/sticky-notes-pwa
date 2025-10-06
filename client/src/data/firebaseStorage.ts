@@ -31,6 +31,7 @@ import {
   getUserNotesCollection,
   getUserNoteDoc,
 } from "./firebase";
+import { getTagDefinitions } from "../lib/tags";
 
 export interface IStorage {
   // Bucket operations
@@ -419,7 +420,10 @@ export class FirebaseStorage implements IStorage {
       // Filter by search query
       const filteredNotes = allNotes.filter(note => 
         note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        note.content.toLowerCase().includes(searchQuery.toLowerCase())
+        note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (note.tags && note.tags.some(tag => 
+          getTagDefinitions([tag])[0]?.label.toLowerCase().includes(searchQuery.toLowerCase())
+        ))
       );
       
       // Filter by bucket if specified

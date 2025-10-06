@@ -15,6 +15,7 @@ import type {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getTagDefinitions } from "@/lib/tags";
 import { Skeleton } from "@/components/ui/skeleton";
 import NoteContent from "@/components/note-content";
 
@@ -67,6 +68,7 @@ export default function Home() {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [bucketToDelete, setBucketToDelete] = useState<BucketWithCount | null>(
     null
@@ -301,7 +303,12 @@ export default function Home() {
     }
   };
 
-  const displayNotes = isSearching ? searchResults : notes;
+  // Filter notes by tag if selected
+  const filteredNotes = selectedTagFilter 
+    ? notes.filter(note => note.tags && note.tags.includes(selectedTagFilter))
+    : notes;
+
+  const displayNotes = isSearching ? searchResults : filteredNotes;
 
   // Debug logging
   console.log("Current state:", {
@@ -431,6 +438,8 @@ export default function Home() {
               <p className="text-muted-foreground mt-1">
                 {isSearching
                   ? `Found ${searchResults.length} notes`
+                  : selectedTagFilter
+                  ? `Filtered by tag: ${getTagDefinitions([selectedTagFilter])[0]?.label || selectedTagFilter}`
                   : currentBucket?.description ||
                     "Manage your notes and organize your thoughts"}
               </p>
@@ -446,6 +455,51 @@ export default function Home() {
               </Button>
             )}
           </div>
+
+          {/* Tag Filter */}
+          {!isSearching && notes.length > 0 && (
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Tag className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">Filter by tag:</span>
+                {selectedTagFilter && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedTagFilter(null)}
+                    className="h-6 px-2 text-xs"
+                  >
+                    Clear filter
+                  </Button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {Array.from(new Set(notes.flatMap(note => note.tags || [])))
+                  .slice(0, 10) // Show only first 10 tags to avoid clutter
+                  .map(tagId => {
+                    const tag = getTagDefinitions([tagId])[0];
+                    if (!tag) return null;
+                    const IconComponent = tag.icon;
+                    const isSelected = selectedTagFilter === tagId;
+                    return (
+                      <button
+                        key={tagId}
+                        onClick={() => setSelectedTagFilter(isSelected ? null : tagId)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105 ${
+                          isSelected
+                            ? `${tag.bgColor} ${tag.color} border-2 border-current shadow-sm`
+                            : "bg-muted text-muted-foreground hover:bg-muted/80 border border-border"
+                        }`}
+                        title={tag.description}
+                      >
+                        <IconComponent className="w-3 h-3" />
+                        {tag.label}
+                      </button>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
 
           {/* Notes Grid */}
           {notesLoading && !isSearching ? (
@@ -519,7 +573,8 @@ export default function Home() {
                       data-testid={`text-note-content-${note.id}`}
                     />
 
-                    <div className="mt-4 flex items-end justify-between">
+                    <div className="mt-4 space-y-2">
+                      {/* Buckets row */}
                       <div className="flex flex-wrap gap-1">
                         {/* Show primary bucket in search results */}
                         {isSearching && (
@@ -553,13 +608,61 @@ export default function Home() {
                           </>
                         )}
                       </div>
-                      <div
-                        className="text-xs opacity-70 ml-auto"
-                        data-testid={`text-note-date-${note.id}`}
-                      >
-                        {note.updatedAt
-                          ? new Date(note.updatedAt).toLocaleDateString()
-                          : "No date"}
+
+                      {/* Tags and date row */}
+                      <div className="flex items-center justify-between">
+                        {/* Show tags */}
+                        {note.tags && note.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {getTagDefinitions(note.tags)
+                              .slice(0, isSearching ? 2 : 3)
+                              .map((tag) => {
+                                const IconComponent = tag.icon;
+                                return (
+                                  <div
+                                    key={tag.id}
+                                    className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${tag.bgColor} ${tag.color} border-0 cursor-pointer relative hover:scale-110 transition-transform duration-200`}
+                                    title={tag.label}
+                                    onMouseEnter={(e) => {
+                                      const tooltip = e.currentTarget.querySelector('.tag-tooltip');
+                                      if (tooltip) {
+                                        tooltip.classList.remove('opacity-0');
+                                        tooltip.classList.add('opacity-100');
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      const tooltip = e.currentTarget.querySelector('.tag-tooltip');
+                                      if (tooltip) {
+                                        tooltip.classList.remove('opacity-100');
+                                        tooltip.classList.add('opacity-0');
+                                      }
+                                    }}
+                                  >
+                                    <IconComponent className="w-3 h-3" />
+                                    {/* Tooltip on hover */}
+                                    <div className="tag-tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none">
+                                      {tag.label.toLowerCase()}
+                                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-900"></div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            {note.tags.length > (isSearching ? 2 : 3) && (
+                              <div className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-muted text-muted-foreground border border-border text-xs font-medium">
+                                +{note.tags.length - (isSearching ? 2 : 3)}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        <div
+                          className="text-xs opacity-70 ml-auto"
+                          data-testid={`text-note-date-${note.id}`}
+                        >
+                          {note.updatedAt
+                            ? new Date(note.updatedAt).toLocaleDateString()
+                            : "No date"}
+                        </div>
                       </div>
                     </div>
                   </CardContent>

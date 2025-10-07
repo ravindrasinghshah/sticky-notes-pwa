@@ -24,4 +24,7 @@ export interface IStorage {
 
   // Search operations
   searchNotes(query: string, bucketId?: string): Promise<NoteWithBuckets[]>;
+  
+  // Get all user notes across all buckets
+  getAllUserNotes(): Promise<NoteWithBuckets[]>;
 }

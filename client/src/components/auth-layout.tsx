@@ -12,13 +12,16 @@ import {
 import { StickyNote, LogOut } from "lucide-react";
 import SearchBar from "@/components/search-bar";
 import { ThemeToggleSimple } from "@/components/theme-toggle";
+import TagBottomSheet from "@/components/tag-bottom-sheet";
 import { logOut } from "../lib/firebase";
+import type { NoteWithBuckets } from "@/data/schema";
 
 interface AuthLayoutProps {
   children: ReactNode;
   showSearch?: boolean;
   onSearch?: (query: string, bucketId?: string) => void;
   currentBucketId?: string;
+  notes?: NoteWithBuckets[];
 }
 
 export default function AuthLayout({
@@ -26,6 +29,7 @@ export default function AuthLayout({
   showSearch = false,
   onSearch,
   currentBucketId,
+  notes = [],
 }: AuthLayoutProps) {
   const [{ user, isAuthenticated = false }] = useStateValue();
   const [, dispatch] = useStateValue();
@@ -72,6 +76,7 @@ export default function AuthLayout({
             {/* User Menu */}
             <div className="flex items-center space-x-4">
               <ThemeToggleSimple />
+              {notes.length > 0 && <TagBottomSheet notes={notes} />}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar

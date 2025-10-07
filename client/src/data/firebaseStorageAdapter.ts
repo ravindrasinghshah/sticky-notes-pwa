@@ -104,6 +104,13 @@ export class FirebaseStorageAdapter implements IStorage {
     const firebaseNotes = await firebaseStorage.searchNotes(query, user.uid, bucketId);
     return firebaseNotes.map(convertFirebaseNoteWithBucketsToNoteWithBuckets);
   }
+
+  // Get all user notes across all buckets
+  async getAllUserNotes(): Promise<NoteWithBuckets[]> {
+    const user = getCurrentUser();
+    const firebaseNotes = await firebaseStorage.getAllUserNotes(user.uid);
+    return firebaseNotes.map(convertFirebaseNoteWithBucketsToNoteWithBuckets);
+  }
 }
 
 export const storage = new FirebaseStorageAdapter();

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCachedBuckets, useCachedNotes } from "@/hooks/use-cached-query";
+import { useCachedBuckets, useCachedNotes, useCachedAllNotes } from "@/hooks/use-cached-query";
 import { useState, useEffect, useCallback } from "react";
 import { useRoute } from "wouter";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getTagDefinitions } from "@/lib/tags";
+import { getBucketIcon, getBucketIconColorClass, getBucketColorClass, getNoteColorClasses } from "@/lib/bucket-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import NoteContent from "@/components/note-content";
 
@@ -24,23 +25,6 @@ import {
   Plus,
   Trash2,
   Edit,
-  Briefcase,
-  Home as HomeIcon,
-  Lightbulb,
-  ShoppingCart,
-  Star,
-  Heart,
-  Book,
-  Coffee,
-  Camera,
-  Music,
-  MapPin,
-  Gift,
-  Folder,
-  Archive,
-  Bookmark,
-  Tag,
-  Flag,
   Pin,
   PinOff,
 } from "lucide-react";
@@ -68,7 +52,9 @@ export default function Home() {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(null);
+  const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(
+    null
+  );
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [bucketToDelete, setBucketToDelete] = useState<BucketWithCount | null>(
     null
@@ -85,6 +71,12 @@ export default function Home() {
     isLoading: notesLoading,
     error: notesError,
   } = useCachedNotes(selectedBucketId || undefined, user?.uid);
+
+  // Fetch all user notes for the bottom sheet
+  const {
+    data: allNotes = [],
+    isLoading: allNotesLoading,
+  } = useCachedAllNotes(user?.uid);
 
   // Get current bucket info
   const currentBucket = buckets.find((b) => b.id === selectedBucketId);
@@ -175,7 +167,13 @@ export default function Home() {
 
   // Toggle pin mutation
   const togglePinMutation = useMutation({
-    mutationFn: async ({ noteId, pinned }: { noteId: string; pinned: boolean }) => {
+    mutationFn: async ({
+      noteId,
+      pinned,
+    }: {
+      noteId: string;
+      pinned: boolean;
+    }) => {
       return await storage.updateNote(noteId, { pinned });
     },
     onSuccess: () => {
@@ -214,98 +212,10 @@ export default function Home() {
     },
   });
 
-  // Get note color classes
-  const getNoteColorClasses = (color: string) => {
-    switch (color) {
-      case "accent":
-        return "bg-accent text-accent-foreground";
-      case "green":
-        return "bg-green-200 text-green-800";
-      case "blue":
-        return "bg-blue-200 text-blue-800";
-      case "pink":
-        return "bg-pink-200 text-pink-800";
-      case "orange":
-        return "bg-orange-200 text-orange-800";
-      case "purple":
-        return "bg-purple-200 text-purple-800";
-      default:
-        return "bg-accent text-accent-foreground";
-    }
-  };
-
-  // Get bucket color classes
-  const getBucketColorClass = (color: string) => {
-    switch (color) {
-      case "primary":
-        return "bg-primary";
-      case "accent":
-        return "bg-accent";
-      case "green":
-        return "bg-green-500";
-      case "red":
-        return "bg-red-500";
-      case "blue":
-        return "bg-blue-500";
-      case "purple":
-        return "bg-purple-500";
-      default:
-        return "bg-primary";
-    }
-  };
-
-  const getBucketIcon = (iconName: string) => {
-    const iconMap: Record<
-      string,
-      React.ComponentType<{ className?: string }>
-    > = {
-      briefcase: Briefcase,
-      home: HomeIcon,
-      lightbulb: Lightbulb,
-      "shopping-cart": ShoppingCart,
-      star: Star,
-      heart: Heart,
-      book: Book,
-      coffee: Coffee,
-      camera: Camera,
-      music: Music,
-      "map-pin": MapPin,
-      gift: Gift,
-      folder: Folder,
-      archive: Archive,
-      bookmark: Bookmark,
-      tag: Tag,
-      flag: Flag,
-    };
-
-    const IconComponent = iconMap[iconName] || Briefcase;
-    return IconComponent;
-  };
-
-  const getBucketIconColorClass = (color: string) => {
-    switch (color) {
-      case "primary":
-        return "text-primary";
-      case "accent":
-        return "text-accent";
-      case "green":
-        return "text-green-500";
-      case "red":
-        return "text-red-500";
-      case "blue":
-        return "text-blue-500";
-      case "purple":
-        return "text-purple-500";
-      case "pink":
-        return "text-pink-500";
-      default:
-        return "text-primary";
-    }
-  };
 
   // Filter notes by tag if selected
-  const filteredNotes = selectedTagFilter 
-    ? notes.filter(note => note.tags && note.tags.includes(selectedTagFilter))
+  const filteredNotes = selectedTagFilter
+    ? notes.filter((note) => note.tags && note.tags.includes(selectedTagFilter))
     : notes;
 
   const displayNotes = isSearching ? searchResults : filteredNotes;
@@ -326,6 +236,7 @@ export default function Home() {
       showSearch={true}
       onSearch={handleSearch}
       currentBucketId={selectedBucketId || undefined}
+      notes={allNotes}
     >
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Sidebar: Buckets */}
@@ -439,7 +350,10 @@ export default function Home() {
                 {isSearching
                   ? `Found ${searchResults.length} notes`
                   : selectedTagFilter
-                  ? `Filtered by tag: ${getTagDefinitions([selectedTagFilter])[0]?.label || selectedTagFilter}`
+                  ? `Filtered by tag: ${
+                      getTagDefinitions([selectedTagFilter])[0]?.label ||
+                      selectedTagFilter
+                    }`
                   : currentBucket?.description ||
                     "Manage your notes and organize your thoughts"}
               </p>
@@ -455,51 +369,6 @@ export default function Home() {
               </Button>
             )}
           </div>
-
-          {/* Tag Filter */}
-          {!isSearching && notes.length > 0 && (
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <Tag className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-muted-foreground">Filter by tag:</span>
-                {selectedTagFilter && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedTagFilter(null)}
-                    className="h-6 px-2 text-xs"
-                  >
-                    Clear filter
-                  </Button>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {Array.from(new Set(notes.flatMap(note => note.tags || [])))
-                  .slice(0, 10) // Show only first 10 tags to avoid clutter
-                  .map(tagId => {
-                    const tag = getTagDefinitions([tagId])[0];
-                    if (!tag) return null;
-                    const IconComponent = tag.icon;
-                    const isSelected = selectedTagFilter === tagId;
-                    return (
-                      <button
-                        key={tagId}
-                        onClick={() => setSelectedTagFilter(isSelected ? null : tagId)}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105 ${
-                          isSelected
-                            ? `${tag.bgColor} ${tag.color} border-2 border-current shadow-sm`
-                            : "bg-muted text-muted-foreground hover:bg-muted/80 border border-border"
-                        }`}
-                        title={tag.description}
-                      >
-                        <IconComponent className="w-3 h-3" />
-                        {tag.label}
-                      </button>
-                    );
-                  })}
-              </div>
-            </div>
-          )}
 
           {/* Notes Grid */}
           {notesLoading && !isSearching ? (
@@ -541,7 +410,10 @@ export default function Home() {
                           title={note.pinned ? "Unpin note" : "Pin note"}
                           onClick={(e) => {
                             e.stopPropagation();
-                            togglePinMutation.mutate({ noteId: note.id, pinned: !note.pinned });
+                            togglePinMutation.mutate({
+                              noteId: note.id,
+                              pinned: !note.pinned,
+                            });
                           }}
                           data-testid={`button-toggle-pin-${note.id}`}
                         >
@@ -624,17 +496,23 @@ export default function Home() {
                                     className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${tag.bgColor} ${tag.color} border-0 cursor-pointer relative hover:scale-110 transition-transform duration-200`}
                                     title={tag.label}
                                     onMouseEnter={(e) => {
-                                      const tooltip = e.currentTarget.querySelector('.tag-tooltip');
+                                      const tooltip =
+                                        e.currentTarget.querySelector(
+                                          ".tag-tooltip"
+                                        );
                                       if (tooltip) {
-                                        tooltip.classList.remove('opacity-0');
-                                        tooltip.classList.add('opacity-100');
+                                        tooltip.classList.remove("opacity-0");
+                                        tooltip.classList.add("opacity-100");
                                       }
                                     }}
                                     onMouseLeave={(e) => {
-                                      const tooltip = e.currentTarget.querySelector('.tag-tooltip');
+                                      const tooltip =
+                                        e.currentTarget.querySelector(
+                                          ".tag-tooltip"
+                                        );
                                       if (tooltip) {
-                                        tooltip.classList.remove('opacity-100');
-                                        tooltip.classList.add('opacity-0');
+                                        tooltip.classList.remove("opacity-100");
+                                        tooltip.classList.add("opacity-0");
                                       }
                                     }}
                                   >
@@ -654,7 +532,7 @@ export default function Home() {
                             )}
                           </div>
                         )}
-                        
+
                         <div
                           className="text-xs opacity-70 ml-auto"
                           data-testid={`text-note-date-${note.id}`}

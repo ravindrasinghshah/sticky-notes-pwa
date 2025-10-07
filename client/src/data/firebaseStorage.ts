@@ -50,6 +50,9 @@ export interface IStorage {
   
   // Search operations
   searchNotes(query: string, userId: string, bucketId?: string): Promise<FirebaseNoteWithBuckets[]>;
+  
+  // Get all user notes across all buckets
+  getAllUserNotes(userId: string): Promise<FirebaseNoteWithBuckets[]>;
 }
 
 export class FirebaseStorage implements IStorage {
@@ -254,13 +257,25 @@ export class FirebaseStorage implements IStorage {
       for (const note of Array.from(allNotes.values())) {
         const sharedBuckets: FirebaseBucket[] = [];
         
+        // Add primary bucket first
+        const primaryBucketDoc = await getDoc(getUserBucketDoc(userId, note.primaryBucketId));
+        if (primaryBucketDoc.exists()) {
+          sharedBuckets.push({
+            ...primaryBucketDoc.data() as FirebaseBucket,
+            id: primaryBucketDoc.id,
+          });
+        }
+        
+        // Add shared buckets (excluding primary bucket to avoid duplicates)
         for (const bucketId of note.sharedBucketIds) {
-          const bucketDoc = await getDoc(getUserBucketDoc(userId, bucketId));
-          if (bucketDoc.exists()) {
-            sharedBuckets.push({
-              ...bucketDoc.data() as FirebaseBucket,
-              id: bucketDoc.id,
-            });
+          if (bucketId !== note.primaryBucketId) {
+            const bucketDoc = await getDoc(getUserBucketDoc(userId, bucketId));
+            if (bucketDoc.exists()) {
+              sharedBuckets.push({
+                ...bucketDoc.data() as FirebaseBucket,
+                id: bucketDoc.id,
+              });
+            }
           }
         }
         
@@ -459,6 +474,67 @@ export class FirebaseStorage implements IStorage {
       return notesWithBuckets;
     } catch (error) {
       console.error("Error searching notes:", error);
+      return [];
+    }
+  }
+
+  // Get all user notes across all buckets
+  async getAllUserNotes(userId: string): Promise<FirebaseNoteWithBuckets[]> {
+    try {
+      // Get all notes for the user, ordered by updatedAt
+      const notesQuery = query(
+        getUserNotesCollection(userId),
+        orderBy('updatedAt', 'desc')
+      );
+      const notesSnapshot = await getDocs(notesQuery);
+      
+      // Get shared buckets for each note
+      const notesWithBuckets: FirebaseNoteWithBuckets[] = [];
+      
+      for (const doc of notesSnapshot.docs) {
+        const noteData = doc.data() as FirebaseNote;
+        const note = { ...noteData, id: doc.id };
+        
+        const sharedBuckets: FirebaseBucket[] = [];
+        
+        // Add primary bucket first
+        const primaryBucketDoc = await getDoc(getUserBucketDoc(userId, note.primaryBucketId));
+        if (primaryBucketDoc.exists()) {
+          sharedBuckets.push({
+            ...primaryBucketDoc.data() as FirebaseBucket,
+            id: primaryBucketDoc.id,
+          });
+        }
+        
+        // Add shared buckets (excluding primary bucket to avoid duplicates)
+        for (const bucketId of note.sharedBucketIds) {
+          if (bucketId !== note.primaryBucketId) {
+            const bucketDoc = await getDoc(getUserBucketDoc(userId, bucketId));
+            if (bucketDoc.exists()) {
+              sharedBuckets.push({
+                ...bucketDoc.data() as FirebaseBucket,
+                id: bucketDoc.id,
+              });
+            }
+          }
+        }
+        
+        notesWithBuckets.push({
+          ...note,
+          sharedBuckets,
+        });
+      }
+      
+      // Sort by pinned status first, then by updatedAt
+      notesWithBuckets.sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return b.updatedAt.toMillis() - a.updatedAt.toMillis();
+      });
+      
+      return notesWithBuckets;
+    } catch (error) {
+      console.error("Error getting all user notes:", error);
       return [];
     }
   }

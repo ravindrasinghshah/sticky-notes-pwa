@@ -95,6 +95,23 @@ export function useCachedNotes(bucketId: string | undefined, userId: string | un
 }
 
 /**
+ * Hook specifically for all user notes across all buckets
+ */
+export function useCachedAllNotes(userId: string | undefined) {
+  return useCachedQuery({
+    queryKey: ["all-notes"],
+    queryFn: async () => {
+      const { storage } = await import("@/data");
+      return await storage.getAllUserNotes();
+    },
+    cacheKey: 'all-notes',
+    userId: userId || '',
+    cacheData: undefined, // No cache for all notes yet
+    enabled: !!userId,
+  });
+}
+
+/**
  * Utility hook to clear cache when user logs out
  */
 export function useCacheManager() {

@@ -1,10 +1,13 @@
 name: Deploy to Firebase Hosting
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip running tests'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build_and_deploy:
@@ -17,7 +20,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
 
     - name: Install dependencies
@@ -25,6 +28,7 @@ jobs:
 
     - name: Run TypeScript check
       run: npm run check
+      if: ${{ !inputs.skip_tests }}
 
     - name: Build application
       run: npm run build
@@ -36,4 +40,3 @@ jobs:
         firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
         channelId: live
         projectId: sticky-notes-fc76b
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'

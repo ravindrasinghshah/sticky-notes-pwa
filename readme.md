@@ -2,6 +2,16 @@
 
 A modern Progressive Web App (PWA) for organizing thoughts and tasks with smart sticky notes. Create, organize, and manage sticky notes within customizable buckets with real-time synchronization, offline support, and cross-device accessibility.
 
+[![Open Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ravindrasinghshah/sticky-notes-pwa)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![PWA](https://img.shields.io/badge/PWA-4285F4?logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
+
+## 🎯 Keywords
+**PWA, Progressive Web App, Sticky Notes, Note Taking, React, TypeScript, Firebase, Offline Support, Real-time Sync, Open Source, Web App, Productivity, Task Management, Bucket Organization, Tag System, Dark Mode, Light Mode, Cross-platform**
+
 Live site: <a href="https://stickee-notes.web.app/" target="_blank">https://stickee-notes.web.app/</a>
 
 ## ✨ Features
@@ -52,6 +62,8 @@ For detailed technical documentation, see our comprehensive guides:
 - **[Development Setup](documentation/development_setup.md)** - Complete setup instructions for contributors
 - **[Contribution Guidelines](documentation/contribution_guidelines.md)** - Code style, commit conventions, and PR process
 - **[Project Structure](documentation/project_structure.md)** - Codebase organization and file structure
+- **[SEO Strategy](documentation/seo_strategy.md)** - Search engine optimization and discoverability
+- **[GitHub SEO Guide](documentation/github_seo_guide.md)** - Repository optimization for contributors
 
 ## 🤝 Contributing
 
@@ -138,3 +150,33 @@ If you have any questions or need help getting started, feel free to:
 ---
 
 **Happy note-taking! 📝✨**
+
+---
+
+## 🔍 Discoverability
+
+This project is perfect for:
+- **Frontend Developers** learning React, TypeScript, and PWA development
+- **Open Source Contributors** looking for well-documented projects
+- **PWA Enthusiasts** interested in offline-first applications
+- **Firebase Developers** exploring real-time data synchronization
+- **UI/UX Designers** working with modern web technologies
+- **Students** learning full-stack web development
+
+### Related Technologies
+- Progressive Web Apps (PWA)
+- React Hooks and Context API
+- Firebase Authentication and Firestore
+- TypeScript and modern JavaScript
+- Tailwind CSS and responsive design
+- Service Workers and offline functionality
+- Real-time data synchronization
+- Cross-platform web development
+
+### Use Cases
+- Personal note-taking and organization
+- Team collaboration and project management
+- Learning PWA development patterns
+- Understanding Firebase integration
+- Exploring modern React patterns
+- Studying TypeScript best practices

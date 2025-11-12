@@ -24,56 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Briefcase,
-  Home,
-  Lightbulb,
-  ShoppingCart,
-  Star,
-  Heart,
-  Book,
-  Coffee,
-  Camera,
-  Music,
-  MapPin,
-  Gift,
-  Folder,
-  Archive,
-  Bookmark,
-  Tag,
-  Flag,
-} from "lucide-react";
-
-const ICON_OPTIONS = [
-  { value: "briefcase", label: "Briefcase", icon: Briefcase },
-  { value: "home", label: "Home", icon: Home },
-  { value: "lightbulb", label: "Lightbulb", icon: Lightbulb },
-  { value: "shopping-cart", label: "Shopping Cart", icon: ShoppingCart },
-  { value: "star", label: "Star", icon: Star },
-  { value: "heart", label: "Heart", icon: Heart },
-  { value: "book", label: "Book", icon: Book },
-  { value: "coffee", label: "Coffee", icon: Coffee },
-  { value: "camera", label: "Camera", icon: Camera },
-  { value: "music", label: "Music", icon: Music },
-  { value: "map-pin", label: "Location", icon: MapPin },
-  { value: "gift", label: "Gift", icon: Gift },
-  { value: "folder", label: "Folder", icon: Folder },
-  { value: "archive", label: "Archive", icon: Archive },
-  { value: "bookmark", label: "Bookmark", icon: Bookmark },
-  { value: "tag", label: "Tag", icon: Tag },
-  { value: "flag", label: "Flag", icon: Flag },
-];
-
-const COLOR_OPTIONS = [
-  { value: "primary", label: "Primary", color: "bg-primary" },
-  { value: "secondary", label: "Secondary", color: "bg-secondary" },
-  { value: "accent", label: "Accent", color: "bg-accent" },
-  { value: "green", label: "Green", color: "bg-green-500" },
-  { value: "red", label: "Red", color: "bg-red-500" },
-  { value: "blue", label: "Blue", color: "bg-blue-500" },
-  { value: "purple", label: "Purple", color: "bg-purple-500" },
-  { value: "pink", label: "Pink", color: "bg-pink-500" },
-];
+import { ICON_OPTIONS, BUCKET_COLOR_OPTIONS } from "@/lib/bucket-utils";
 
 interface BucketEditorProps {
   isOpen: boolean;
@@ -192,7 +143,7 @@ export default function BucketEditor({ isOpen, onClose, bucket }: BucketEditorPr
                   <SelectValue placeholder="Select a color" />
                 </SelectTrigger>
                 <SelectContent>
-                  {COLOR_OPTIONS.map((option) => (
+                  {BUCKET_COLOR_OPTIONS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       <div className="flex items-center gap-2">
                         <div className={`w-4 h-4 rounded-full ${option.color}`}></div>

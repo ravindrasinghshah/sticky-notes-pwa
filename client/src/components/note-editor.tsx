@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { X, Type, Palette, Pin, PinOff, Tag, ChevronDown, Check } from "lucide-react";
 import { TAG_DEFINITIONS, getTagDefinitions } from "@/lib/tags";
+import { NOTE_COLOR_OPTIONS } from "@/lib/bucket-utils";
 
 interface NoteEditorProps {
   note?: Note | null;
@@ -39,16 +40,6 @@ const FONT_OPTIONS = [
   { value: "Roboto", label: "Roboto" },
   { value: "Poppins", label: "Poppins" },
   { value: "Open Sans", label: "Open Sans" },
-];
-
-const COLOR_OPTIONS = [
-  { value: "accent", label: "Default", color: "bg-accent" },
-  { value: "yellow", label: "Yellow", color: "bg-yellow-200" },
-  { value: "blue", label: "Blue", color: "bg-blue-200" },
-  { value: "green", label: "Green", color: "bg-green-200" },
-  { value: "pink", label: "Pink", color: "bg-pink-200" },
-  { value: "purple", label: "Purple", color: "bg-purple-200" },
-  { value: "orange", label: "Orange", color: "bg-orange-200" },
 ];
 
 export default function NoteEditor({
@@ -289,7 +280,7 @@ export default function NoteEditor({
                   Color
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {COLOR_OPTIONS.map((colorOption) => (
+                  {NOTE_COLOR_OPTIONS.map((colorOption) => (
                     <button
                       key={colorOption.value}
                       type="button"

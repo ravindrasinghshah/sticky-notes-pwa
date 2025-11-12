@@ -21,61 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Briefcase,
-  Home,
-  Lightbulb,
-  ShoppingCart,
-  Star,
-  Heart,
-  Book,
-  Coffee,
-  Camera,
-  Music,
-  MapPin,
-  Gift,
-  Folder,
-  Archive,
-  Bookmark,
-  Tag,
-  Flag,
-} from "lucide-react";
+import { ICON_OPTIONS, BUCKET_COLOR_OPTIONS } from "@/lib/bucket-utils";
 
 interface BucketManagerProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const ICON_OPTIONS = [
-  { value: "briefcase", label: "Briefcase", icon: Briefcase },
-  { value: "home", label: "Home", icon: Home },
-  { value: "lightbulb", label: "Lightbulb", icon: Lightbulb },
-  { value: "shopping-cart", label: "Shopping Cart", icon: ShoppingCart },
-  { value: "star", label: "Star", icon: Star },
-  { value: "heart", label: "Heart", icon: Heart },
-  { value: "book", label: "Book", icon: Book },
-  { value: "coffee", label: "Coffee", icon: Coffee },
-  { value: "camera", label: "Camera", icon: Camera },
-  { value: "music", label: "Music", icon: Music },
-  { value: "map-pin", label: "Location", icon: MapPin },
-  { value: "gift", label: "Gift", icon: Gift },
-  { value: "folder", label: "Folder", icon: Folder },
-  { value: "archive", label: "Archive", icon: Archive },
-  { value: "bookmark", label: "Bookmark", icon: Bookmark },
-  { value: "tag", label: "Tag", icon: Tag },
-  { value: "flag", label: "Flag", icon: Flag },
-];
-
-const COLOR_OPTIONS = [
-  { value: "primary", label: "Primary", color: "bg-primary" },
-  { value: "accent", label: "Accent", color: "bg-accent" },
-  { value: "green", label: "Green", color: "bg-green-500" },
-  { value: "blue", label: "Blue", color: "bg-blue-500" },
-  { value: "purple", label: "Purple", color: "bg-purple-500" },
-  { value: "red", label: "Red", color: "bg-red-500" },
-  { value: "yellow", label: "Yellow", color: "bg-yellow-500" },
-  { value: "pink", label: "Pink", color: "bg-pink-500" },
-];
 
 export default function BucketManager({ isOpen, onClose }: BucketManagerProps) {
   const { toast } = useToast();
@@ -210,7 +161,7 @@ export default function BucketManager({ isOpen, onClose }: BucketManagerProps) {
           <div>
             <label className="block text-sm font-medium mb-2">Color</label>
             <div className="flex flex-wrap gap-2">
-              {COLOR_OPTIONS.map((colorOption) => (
+              {BUCKET_COLOR_OPTIONS.map((colorOption) => (
                 <button
                   key={colorOption.value}
                   type="button"

@@ -27,6 +27,7 @@ export interface Bucket {
   description?: string | null;
   color: string;
   icon: string;
+  status: "active" | "archived";
   userId: string;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -37,6 +38,7 @@ export interface InsertBucket {
   description?: string | null;
   color?: string;
   icon?: string;
+  status?: "active" | "archived";
 }
 
 export interface BucketWithCount extends Bucket {

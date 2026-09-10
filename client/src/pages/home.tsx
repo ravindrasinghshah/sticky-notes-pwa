@@ -25,6 +25,8 @@ import {
   Plus,
   Trash2,
   Edit,
+  Archive,
+  ArchiveRestore,
   Pin,
   PinOff,
 } from "lucide-react";
@@ -59,11 +61,14 @@ export default function Home() {
   const [bucketToDelete, setBucketToDelete] = useState<BucketWithCount | null>(
     null
   );
+  const [showArchivedBuckets, setShowArchivedBuckets] = useState(false);
 
   // Fetch buckets with cache-first strategy
   const { data: buckets = [], isLoading: bucketsLoading } = useCachedBuckets(
     user?.uid
   );
+  const activeBuckets = buckets.filter((bucket) => bucket.status === "active");
+  const archivedBuckets = buckets.filter((bucket) => bucket.status === "archived");
 
   // Fetch notes for selected bucket with cache-first strategy
   const {
@@ -83,12 +88,12 @@ export default function Home() {
 
   // Set default bucket when buckets load
   useEffect(() => {
-    if (buckets.length > 0 && !selectedBucketId) {
-      const defaultBucket = buckets[0];
+    if (activeBuckets.length > 0 && !selectedBucketId) {
+      const defaultBucket = activeBuckets[0];
       setSelectedBucketId(defaultBucket.id);
       // setLocation(`/home/bucket/${defaultBucket.id}`);
     }
-  }, [buckets, selectedBucketId]);
+  }, [activeBuckets, selectedBucketId]);
 
   // Handle bucket selection
   const handleBucketSelect = (bucketId: string) => {
@@ -118,6 +123,59 @@ export default function Home() {
     e.stopPropagation(); // Prevent bucket selection
     setEditingBucket(bucket);
     setShowBucketEditor(true);
+  };
+
+  const archiveBucketMutation = useMutation({
+    mutationFn: async ({ bucketId, archived }: { bucketId: string; archived: boolean }) => {
+      return await storage.updateBucket(bucketId, {
+        status: archived ? "archived" : "active",
+      });
+    },
+    onMutate: async ({ bucketId, archived }) => {
+      await queryClient.cancelQueries({ queryKey: ["buckets"] });
+
+      const previousBuckets = queryClient.getQueryData<BucketWithCount[]>([
+        "buckets",
+      ]);
+
+      queryClient.setQueryData<BucketWithCount[]>(["buckets"], (currentBuckets) =>
+        currentBuckets?.map((bucket) =>
+          bucket.id === bucketId
+            ? { ...bucket, status: archived ? "archived" : "active" }
+            : bucket,
+        ),
+      );
+
+      return { previousBuckets };
+    },
+    onSuccess: (_bucket, variables) => {
+      if (variables.archived && selectedBucketId === variables.bucketId) {
+        setSelectedBucketId(activeBuckets.find((bucket) => bucket.id !== variables.bucketId)?.id || null);
+      }
+      toast({
+        title: "Success",
+        description: variables.archived ? "Bucket archived successfully" : "Bucket restored successfully",
+      });
+    },
+    onError: (error, _variables, context) => {
+      if (context?.previousBuckets) {
+        queryClient.setQueryData(["buckets"], context.previousBuckets);
+      }
+      console.error("Error updating bucket status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update bucket status",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["buckets"] });
+    },
+  });
+
+  const handleArchiveBucket = (bucket: BucketWithCount, e: React.MouseEvent) => {
+    e.stopPropagation();
+    archiveBucketMutation.mutate({ bucketId: bucket.id, archived: bucket.status !== "archived" });
   };
 
   const handleBucketDeleted = () => {
@@ -262,7 +320,7 @@ export default function Home() {
                   ? Array.from({ length: 3 }).map((_, i) => (
                       <Skeleton key={i} className="h-12 w-full" />
                     ))
-                  : buckets.map((bucket) => (
+                  : activeBuckets.map((bucket) => (
                       <div
                         key={bucket.id}
                         className={`group relative p-4 rounded-lg cursor-pointer border transition-all hover:shadow-md ${
@@ -318,6 +376,16 @@ export default function Home() {
                             <Button
                               variant="ghost"
                               size="sm"
+                              className="h-7 w-7 p-0 hover:bg-accent"
+                              onClick={(e) => handleArchiveBucket(bucket, e)}
+                              data-testid={`button-archive-bucket-${bucket.id}`}
+                              title="Archive bucket"
+                            >
+                              <Archive className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               className="h-7 w-7 p-0 hover:bg-destructive hover:text-destructive-foreground"
                               onClick={(e) => handleDeleteBucket(bucket, e)}
                               data-testid={`button-delete-bucket-${bucket.id}`}
@@ -330,6 +398,84 @@ export default function Home() {
                       </div>
                     ))}
               </div>
+
+              {archivedBuckets.length > 0 && (
+                <div className="mt-6 border-t border-border pt-4">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-between px-2"
+                    onClick={() => setShowArchivedBuckets((isShown) => !isShown)}
+                    data-testid="button-toggle-archived-buckets"
+                  >
+                    <span>Archived</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {archivedBuckets.length}
+                    </Badge>
+                  </Button>
+
+                  {showArchivedBuckets && (
+                    <div className="space-y-3 mt-3">
+                      {archivedBuckets.map((bucket) => (
+                        <div
+                          key={bucket.id}
+                          className={`group relative p-4 rounded-lg cursor-pointer border transition-all hover:shadow-md ${
+                            selectedBucketId === bucket.id
+                              ? "bg-muted border-border"
+                              : "hover:bg-muted/50 border-transparent hover:border-border"
+                          }`}
+                          onClick={() => handleBucketSelect(bucket.id)}
+                          data-testid={`archived-bucket-item-${bucket.id}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0">
+                              {(() => {
+                                const IconComponent = getBucketIcon(bucket.icon);
+                                return (
+                                  <IconComponent
+                                    className={`w-5 h-5 ${getBucketIconColorClass(bucket.color)}`}
+                                  />
+                                );
+                              })()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-foreground truncate">
+                                {bucket.name}
+                              </div>
+                            </div>
+                            <Badge variant="secondary" className="text-xs px-2 py-1">
+                              {bucket.noteCount}
+                            </Badge>
+                          </div>
+                          <div className="absolute top-2 right-2 bg-background rounded-lg p-1 shadow-lg border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0 hover:bg-accent"
+                              onClick={(e) => handleArchiveBucket(bucket, e)}
+                              data-testid={`button-restore-bucket-${bucket.id}`}
+                              title="Restore bucket"
+                            >
+                              <ArchiveRestore className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                              onClick={(e) => handleDeleteBucket(bucket, e)}
+                              data-testid={`button-delete-archived-bucket-${bucket.id}`}
+                              title="Delete bucket"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

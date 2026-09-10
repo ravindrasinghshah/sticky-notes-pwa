@@ -1,4 +1,4 @@
-# 📝 Stickee Notes PWA
+# 📝 Sticky Notes PWA
 
 A modern Progressive Web App (PWA) for organizing thoughts and tasks with smart sticky notes. Create, organize, and manage sticky notes within customizable buckets with real-time synchronization, offline support, and cross-device accessibility.
 

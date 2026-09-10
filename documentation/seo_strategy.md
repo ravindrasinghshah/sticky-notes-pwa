@@ -1,4 +1,4 @@
-# SEO Strategy for Stickee Notes PWA
+# SEO Strategy for Sticky Notes PWA
 
 ## 🎯 Primary Keywords
 - **Primary**: PWA, Progressive Web App, Sticky Notes, Note Taking App

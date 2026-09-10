@@ -59,7 +59,7 @@ export default function AuthLayout({
                 <StickyNote className="text-accent-foreground" />
               </div>
               <h1 className="text-xl font-semibold text-foreground">
-                Stickee Notes
+                Sticky Notes
               </h1>
             </div>
 

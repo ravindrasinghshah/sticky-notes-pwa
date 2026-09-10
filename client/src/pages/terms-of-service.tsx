@@ -33,8 +33,8 @@ export default function TermsOfService() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              These Terms of Service ("Terms") govern your use of Stickee Notes
-              ("Service") operated by Stickee Notes ("us," "we," or "our").
+              These Terms of Service ("Terms") govern your use of Sticky Notes
+              ("Service") operated by Sticky Notes ("us," "we," or "our").
             </p>
             <p>
               By accessing or using our Service, you agree to be bound by these
@@ -50,7 +50,7 @@ export default function TermsOfService() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              Stickee Notes is a web-based application that allows users to
+              Sticky Notes is a web-based application that allows users to
               create, organize, and manage digital sticky notes. The Service
               includes:
             </p>
@@ -121,7 +121,7 @@ export default function TermsOfService() {
             </p>
             <p>
               The Service itself, including its design, functionality, and
-              underlying technology, is owned by Stickee Notes and protected by
+              underlying technology, is owned by Sticky Notes and protected by
               intellectual property laws.
             </p>
           </CardContent>
@@ -179,7 +179,7 @@ export default function TermsOfService() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              To the maximum extent permitted by law, Stickee Notes shall not be
+              To the maximum extent permitted by law, Sticky Notes shall not be
               liable for any indirect, incidental, special, consequential, or
               punitive damages, including without limitation, loss of profits,
               data, use, goodwill, or other intangible losses, resulting from

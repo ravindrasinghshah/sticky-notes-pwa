@@ -1,4 +1,20 @@
-import { collection, doc, addDoc, updateDoc, deleteDoc, getDoc, getDocs, query, where, orderBy, limit, startAfter, QueryDocumentSnapshot, DocumentData, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  limit,
+  startAfter,
+  QueryDocumentSnapshot,
+  DocumentData,
+  Timestamp,
+} from "firebase/firestore";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { db, auth } from "../lib/firebase";
 
@@ -13,6 +29,7 @@ export interface FirebaseBucket {
   userId: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  status?: "archived" | null;
 }
 
 export interface FirebaseNote {
@@ -48,13 +65,19 @@ export const convertDateToTimestamp = (date: Date): Timestamp => {
 };
 
 // Collection references - Users are managed by Firebase Auth
-export const getUserBucketsCollection = (userId: string) => collection(db, 'users', userId, 'buckets');
-export const getUserBucketDoc = (userId: string, bucketId: string) => doc(db, 'users', userId, 'buckets', bucketId);
-export const getUserNotesCollection = (userId: string) => collection(db, 'users', userId, 'notes');
-export const getUserNoteDoc = (userId: string, noteId: string) => doc(db, 'users', userId, 'notes', noteId);
+export const getUserBucketsCollection = (userId: string) =>
+  collection(db, "users", userId, "buckets");
+export const getUserBucketDoc = (userId: string, bucketId: string) =>
+  doc(db, "users", userId, "buckets", bucketId);
+export const getUserNotesCollection = (userId: string) =>
+  collection(db, "users", userId, "notes");
+export const getUserNoteDoc = (userId: string, noteId: string) =>
+  doc(db, "users", userId, "notes", noteId);
 
 // Auth state management
-export const onAuthStateChange = (callback: (user: FirebaseUser | null) => void) => {
+export const onAuthStateChange = (
+  callback: (user: FirebaseUser | null) => void,
+) => {
   return onAuthStateChanged(auth, callback);
 };
 

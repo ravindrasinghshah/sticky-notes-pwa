@@ -65,26 +65,21 @@ export class FirebaseStorage implements IStorage {
       );
       
       const bucketsSnapshot = await getDocs(bucketsQuery);
+      const notesSnapshot = await getDocs(getUserNotesCollection(userId));
+      const notes = notesSnapshot.docs.map((noteDoc) => noteDoc.data() as FirebaseNote);
       const buckets: FirebaseBucketWithCount[] = [];
       
       for (const bucketDoc of bucketsSnapshot.docs) {
         const bucketData = bucketDoc.data() as FirebaseBucket;
-        
-        // Count notes in this bucket
-        const notesQuery = query(
-          getUserNotesCollection(userId),
-          where('primaryBucketId', '==', bucketDoc.id)
-        );
-        const notesSnapshot = await getDocs(notesQuery);
-        
-        // Count notes that have this bucket in sharedBucketIds
-        const sharedNotesQuery = query(
-          getUserNotesCollection(userId),
-          where('sharedBucketIds', 'array-contains', bucketDoc.id)
-        );
-        const sharedNotesSnapshot = await getDocs(sharedNotesQuery);
-        
-        const noteCount = notesSnapshot.size + sharedNotesSnapshot.size;
+
+        // Preserve the existing count behavior while avoiding two reads per bucket.
+        const primaryNoteCount = notes.filter(
+          (note) => note.primaryBucketId === bucketDoc.id,
+        ).length;
+        const sharedNoteCount = notes.filter((note) =>
+          note.sharedBucketIds?.includes(bucketDoc.id),
+        ).length;
+        const noteCount = primaryNoteCount + sharedNoteCount;
         
         buckets.push({
           ...bucketData,

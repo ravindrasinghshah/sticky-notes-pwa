@@ -41,8 +41,9 @@ export function useCachedQuery<T>({
     },
     // Use cached data as initial data if available
     initialData: cacheData,
-    // Set stale time to 30 seconds to prevent unnecessary refetches
-    staleTime: 30 * 1000,
+    // Cached localStorage data is a fast placeholder, not authoritative data.
+    // Mark it stale immediately so a hard reload always fetches fresh data.
+    staleTime: cacheData ? 0 : 30 * 1000,
     // Cache time of 5 minutes
     gcTime: 5 * 60 * 1000,
     // Retry on error
@@ -60,7 +61,7 @@ export function useCachedBuckets(userId: string | undefined) {
   const cachedBuckets = userId ? cacheUtils.getBuckets(userId) : null;
   
   return useCachedQuery({
-    queryKey: ["buckets"],
+    queryKey: ["buckets", userId],
     queryFn: async () => {
       const { storage } = await import("@/data");
       return await storage.getUserBuckets();
@@ -79,7 +80,7 @@ export function useCachedNotes(bucketId: string | undefined, userId: string | un
   const cachedNotes = bucketId && userId ? cacheUtils.getNotes(bucketId, userId) : null;
   
   return useCachedQuery({
-    queryKey: ["notes", bucketId],
+    queryKey: ["notes", userId, bucketId],
     queryFn: async () => {
       if (!bucketId) {
         throw new Error("No bucket selected");
@@ -99,7 +100,7 @@ export function useCachedNotes(bucketId: string | undefined, userId: string | un
  */
 export function useCachedAllNotes(userId: string | undefined) {
   return useCachedQuery({
-    queryKey: ["all-notes"],
+    queryKey: ["all-notes", userId],
     queryFn: async () => {
       const { storage } = await import("@/data");
       return await storage.getAllUserNotes();

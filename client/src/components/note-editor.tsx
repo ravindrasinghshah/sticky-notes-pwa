@@ -112,7 +112,7 @@ export default function NoteEditor({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["buckets"] });
-      queryClient.invalidateQueries({ queryKey: ["notes", selectedBucketId] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
       toast({
         title: "Success",
         description: "Note created successfully",
@@ -138,7 +138,7 @@ export default function NoteEditor({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["buckets"] });
-      queryClient.invalidateQueries({ queryKey: ["notes", selectedBucketId] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
       toast({
         title: "Success",
         description: "Note updated successfully",

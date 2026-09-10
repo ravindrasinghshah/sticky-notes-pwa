@@ -136,9 +136,10 @@ export default function Home() {
 
       const previousBuckets = queryClient.getQueryData<BucketWithCount[]>([
         "buckets",
+        user?.uid,
       ]);
 
-      queryClient.setQueryData<BucketWithCount[]>(["buckets"], (currentBuckets) =>
+      queryClient.setQueryData<BucketWithCount[]>(["buckets", user?.uid], (currentBuckets) =>
         currentBuckets?.map((bucket) =>
           bucket.id === bucketId
             ? { ...bucket, status: archived ? "archived" : "active" }
@@ -159,7 +160,7 @@ export default function Home() {
     },
     onError: (error, _variables, context) => {
       if (context?.previousBuckets) {
-        queryClient.setQueryData(["buckets"], context.previousBuckets);
+        queryClient.setQueryData(["buckets", user?.uid], context.previousBuckets);
       }
       console.error("Error updating bucket status:", error);
       toast({
@@ -207,7 +208,7 @@ export default function Home() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["buckets"] });
-      queryClient.invalidateQueries({ queryKey: ["notes", selectedBucketId] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
       toast({
         title: "Success",
         description: "Note deleted successfully",
@@ -235,7 +236,7 @@ export default function Home() {
       return await storage.updateNote(noteId, { pinned });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes", selectedBucketId] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
       toast({
         title: "Success",
         description: "Note pin status updated",

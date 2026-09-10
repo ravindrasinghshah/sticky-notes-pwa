@@ -131,8 +131,24 @@ export default function Home() {
         status: archived ? "archived" : "active",
       });
     },
+    onMutate: async ({ bucketId, archived }) => {
+      await queryClient.cancelQueries({ queryKey: ["buckets"] });
+
+      const previousBuckets = queryClient.getQueryData<BucketWithCount[]>([
+        "buckets",
+      ]);
+
+      queryClient.setQueryData<BucketWithCount[]>(["buckets"], (currentBuckets) =>
+        currentBuckets?.map((bucket) =>
+          bucket.id === bucketId
+            ? { ...bucket, status: archived ? "archived" : "active" }
+            : bucket,
+        ),
+      );
+
+      return { previousBuckets };
+    },
     onSuccess: (_bucket, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["buckets"] });
       if (variables.archived && selectedBucketId === variables.bucketId) {
         setSelectedBucketId(activeBuckets.find((bucket) => bucket.id !== variables.bucketId)?.id || null);
       }
@@ -141,13 +157,19 @@ export default function Home() {
         description: variables.archived ? "Bucket archived successfully" : "Bucket restored successfully",
       });
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      if (context?.previousBuckets) {
+        queryClient.setQueryData(["buckets"], context.previousBuckets);
+      }
       console.error("Error updating bucket status:", error);
       toast({
         title: "Error",
         description: "Failed to update bucket status",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["buckets"] });
     },
   });
 

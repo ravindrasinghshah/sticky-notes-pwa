@@ -54,3 +54,13 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 - `npm run build` - Build for production
 - `npm run check` - Run TypeScript type checking
 - `npm run deploy` - Build and deploy to Firebase
+
+#### Production Deployment
+
+From the repository root:
+
+```bash
+firebase login
+firebase use sticky-notes-fc76b
+npm run deploy
+```

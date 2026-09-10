@@ -12,7 +12,7 @@ A modern Progressive Web App (PWA) for organizing thoughts and tasks with smart 
 ## 🎯 Keywords
 **PWA, Progressive Web App, Sticky Notes, Note Taking, React, TypeScript, Firebase, Offline Support, Real-time Sync, Open Source, Web App, Productivity, Task Management, Bucket Organization, Tag System, Dark Mode, Light Mode, Cross-platform**
 
-Live site: <a href="https://stickee-notes.web.app/" target="_blank">https://stickee-notes.web.app/</a>
+Live site: <a href="https://stickynotes.ravindrasinghshah.com/" target="_blank">https://stickynotes.ravindrasinghshah.com/</a>
 
 ## ✨ Features
 

@@ -1,10 +1,10 @@
-# System Architecture - Stickee Notes PWA
+# System Architecture - Sticky Notes PWA
 
 > **Keywords**: PWA Architecture, React TypeScript Architecture, Firebase PWA Design, Progressive Web App System Design, Real-time Web Application Architecture, Offline-first Application Design
 
 ## Overview
 
-This document outlines the comprehensive system architecture for Stickee Notes PWA, a modern Progressive Web Application built with React, TypeScript, and Firebase. The architecture is designed for scalability, offline functionality, and real-time synchronization.
+This document outlines the comprehensive system architecture for Sticky Notes PWA, a modern Progressive Web Application built with React, TypeScript, and Firebase. The architecture is designed for scalability, offline functionality, and real-time synchronization.
 
 ## High-Level Architecture
 

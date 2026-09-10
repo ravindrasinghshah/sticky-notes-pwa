@@ -31,7 +31,7 @@ export default function PrivacyPolicy() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              Stickee Notes ("we," "our," or "us") is committed to protecting
+              Sticky Notes ("we," "our," or "us") is committed to protecting
               your privacy. This Privacy Policy explains how we collect, use,
               disclose, and safeguard your information when you use our sticky
               notes application.

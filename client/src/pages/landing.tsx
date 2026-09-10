@@ -54,7 +54,7 @@ export default function Landing() {
                 <StickyNote className="text-white text-3xl" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-white">Stickee Notes</h1>
+                <h1 className="text-4xl font-bold text-white">Sticky Notes</h1>
                 <p className="text-lg text-white/80">Smart sticky notes app</p>
               </div>
             </div>
@@ -97,7 +97,7 @@ export default function Landing() {
                 <StickyNote className="text-white text-3xl" />
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-white mb-2">Stickee Notes</h1>
+            <h1 className="text-4xl font-bold text-white mb-2">Sticky Notes</h1>
             <p className="text-lg text-white/80">Smart sticky notes app</p>
           </div>
 
@@ -152,7 +152,7 @@ export default function Landing() {
               </a>
             </div>
             <div className="text-sm text-white/80">
-              © {new Date().getFullYear()} Stickee Notes. All rights reserved.
+              © {new Date().getFullYear()} Sticky Notes. All rights reserved.
             </div>
           </div>
         </div>

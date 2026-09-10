@@ -70,7 +70,7 @@ A modern Progressive Web App (PWA) for organizing thoughts and tasks with smart 
 
 ### Meta Description
 ```
-Stickee Notes PWA - A modern Progressive Web App for smart sticky notes. Built with React, TypeScript, and Firebase. Features offline support, real-time sync, bucket organization, and tag system. Open source project perfect for learning PWA development.
+Sticky Notes PWA - A modern Progressive Web App for smart sticky notes. Built with React, TypeScript, and Firebase. Features offline support, real-time sync, bucket organization, and tag system. Open source project perfect for learning PWA development.
 ```
 
 ### Key Features for SEO

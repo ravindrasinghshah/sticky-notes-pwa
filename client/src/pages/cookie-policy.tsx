@@ -37,7 +37,7 @@ export default function CookiePolicy() {
               website owners.
             </p>
             <p>
-              This Cookie Policy explains how Stickee Notes ("we," "us," or
+              This Cookie Policy explains how Sticky Notes ("we," "us," or
               "our") uses cookies and similar technologies when you visit our
               website and use our Service.
             </p>
